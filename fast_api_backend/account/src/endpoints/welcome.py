@@ -8,7 +8,13 @@ from src.endpoints.schema.welcome_schema import NewTeamAndUserRequest, NewFollow
 
 from fastapi import Depends, FastAPI, HTTPException, Body, status
 
+#ロガーを定義する
+import logging
+logger = logging.getLogger(__name__)
 
+
+import os
+import dotenv
 welcome_router = APIRouter()
 
 @welcome_router.get("/welcome/some_user")
@@ -37,6 +43,7 @@ async def create_new_following_user(request: NewFollowingUserRequest = Body(...)
 @welcome_router.get("/account/get_user/{id}")
 @inject
 async def get_user_by_id(id: int, service = Depends(Provide[Container.allocation_service])):
+    logger.info("Getting entity succeeded")
     res = service.findAppUserById(id)
     return {"message": "Getting entity succeeded","result": res}
 
