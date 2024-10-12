@@ -120,26 +120,27 @@ class TeamAllocationService(AbstractService):
   @param user_email ユーザのメールアドレス
   """
   @AbstractService.with_session
-  def createUserWithExistingTeamWithPasssCode(self, session, passcode:str, user_name:str, user_email:str):
+  def createUserWithExistingTeamWithPassCode(self, session, passcode:str, user_name:str, user_email:str):
     decoded = {}
     try:
       decoded = decode_app_jwt(untiInterleaveString(passcode, 8))
     except Exception as e:
       print(f"Error during decryption: {e}")
-      return {}
+      return {"message": "decryption error", "status":"failed"}
     
     team_id = decoded["team_id"]
     team = self.app_team_repository.findAppTeamById(session, team_id)
     
     if team is None:
-      return {}
+      return {"message": "team not found", "status":"failed"}
     if decoded["team_name"] != team.name:
-      return {}
+      return {"message": "team name mismatch", "status":"failed"}
     
     user = UserBase(name=user_name, email=user_email)
     dto = PermissionAllocationForCreate(team_id = team_id, user=user)
     res = self.permission_allocation_repository.insertAllocationWithExistingTeamAndNewUser(session, dto)
-    return res.__dict__ if res else {}
+    result = res.__dict__["status"] = "success" if res else "failed"
+    return result if res else {"message": "error", "status":"failed"}
   
   """
   ID指定でパスコードを出力する
