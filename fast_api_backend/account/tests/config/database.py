@@ -17,7 +17,7 @@ class DatabaseForTest:
     'user': os.getenv('DB_USER', 'sample_user'),
     'password': os.getenv('DB_PASSWORD', 'password'),
     'host': os.getenv('DB_HOST', 'localhost:5432'),
-    'database': os.getenv('DB_DATABASE', 'test_schema'),
+    'database': os.getenv('DB_DATABASE_TEST', 'test_schema'),
     })
     
     self._engine = create_engine(
