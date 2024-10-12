@@ -53,9 +53,3 @@ def test_db_unit_allocation_new_team(SessionLocal, teamAllocationService):
   assert user2['name'] == "test_follow"
   assert user2['id'] == 2
   assert user2['email'] == "follow@example.com"
-
-# 特に意味はないエンドポイントのテスト
-@temp_db_container
-def test_create_user():
-    response = client.get("/welcome/new_team_and_user")
-    assert response.status_code == 200

@@ -42,7 +42,6 @@ class DatabaseForTest:
 
 def temp_db_container(f):
   def func(*args, **kwargs):
-      
     db = DatabaseForTest()
     Entity.metadata.create_all(db._engine)
   

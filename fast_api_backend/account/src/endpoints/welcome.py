@@ -4,25 +4,17 @@ from src.config.container import Container, TestClassA
 
 from src.service.team_allocation import TeamAllocationService
 
-from fastapi import Depends, FastAPI, HTTPException
+from src.endpoints.schema.welcome_schema import NewTeamAndUserRequest, NewFollowingUserRequest
+
+from fastapi import Depends, FastAPI, HTTPException, Body, status
 
 
 welcome_router = APIRouter()
 
 @welcome_router.get("/welcome/some_user")
 @inject
-def get_some_user(service :TeamAllocationService = Depends(Provide[Container.user_service])):
+def get_some_user(service :TeamAllocationService = Depends(Provide[Container.allocation_service])):
     return service.findAppUserById(1)
-
-"""
-@welcome_router.post("/users/", response_model=schemas.User)
-@inject
-def create_user(user: schemas.UserCreate, service :TeamAllocationService = Depends(Provide[Container.user_service])):
-    db_user = service.getUserByEmailQuery(user.email)
-    if db_user:
-        raise HTTPException(status_code=400, detail="Email already registered")
-    return service.createUsertQuery(user=user)
-"""
 
 @welcome_router.get("/")
 @inject
@@ -30,7 +22,38 @@ def hello(testc: TestClassA = Depends(Provide[Container.test])):
     assert testc.a == "a"
     return {"message": "Hello World"}
 
-@welcome_router.get("/welcome/new_team_and_user")
+@welcome_router.post("/welcome/new_team_and_user")
 @inject
-def create_team_and_user(testc = Depends(Provide[Container.test])):    
-    return {"message": "Hello World"}
+async def create_new_team_and_user(request: NewTeamAndUserRequest = Body(...), service = Depends(Provide[Container.allocation_service])):
+    res = service.createUserWithNewTeam(team_name = request.team_name, user_name = request.user_name, user_email = request.email)   
+    return {"message": "Inserted", "result": res}
+
+@welcome_router.post("/welcome/new_following_user")
+@inject
+async def create_new_following_user(request: NewFollowingUserRequest = Body(...), service = Depends(Provide[Container.allocation_service])):    
+    res = service.createUserWithExistingTeamWithPassCode(user_name = request.user_name, user_email = request.email, passcode = request.pass_code)
+    return {"message": "Inserted","result":res}
+
+@welcome_router.get("/account/get_user/{id}")
+@inject
+async def get_user_by_id(id: int, service = Depends(Provide[Container.allocation_service])):
+    res = service.findAppUserById(id)
+    return {"message": "Getting entity succeeded","result": res}
+
+@welcome_router.get("/account/get_team/{id}")
+@inject
+async def get_team_by_id(id: int, service = Depends(Provide[Container.allocation_service])):
+    res = service.findAppTeamById(id)
+    return {"message": "Getting entity succeeded", "result":res}
+
+@welcome_router.get("/account/get_allocation/{id}")
+@inject
+def get_allocation_by_id(id: int, service = Depends(Provide[Container.allocation_service])):
+    res = service.findAllocationById(id)
+    return {"message": "Getting entity succeeded", "result":res}
+
+@welcome_router.get("/account/show_passcode_by_team_id/{id}")
+@inject
+async def show_passcode_by_team_id(id: int, service = Depends(Provide[Container.allocation_service])):
+    res = service.exportPassCodeByTeamId(id)
+    return {"message": "Passcode encoding succeeded", "result":res}
