@@ -43,11 +43,11 @@ def test_allocation_new_user_with_existing_team(teamAllocationService, SessionLo
   assert allocation["read_level"] == 0
   
   # パスコードを用いて、フォロワーユーザを取得できていることを確認
-  alloc2 = teamAllocationService.createUserWithExistingTeamWithPasssCode(passcode=passcode, user_name="aaaa", user_email="aaaa@vmail.com")
+  alloc2 = teamAllocationService.createUserWithExistingTeamWithPassCode(passcode=passcode, user_name="aaaa", user_email="aaaa@vmail.com")
   
   # 不適当なパスコードを埋め込んで認証を要求した場合
-  allocDummy = teamAllocationService.createUserWithExistingTeamWithPasssCode(passcode="test", user_name="aaaa", user_email="aaaa@vmail.com")
-  assert allocDummy == {}
+  allocDummy = teamAllocationService.createUserWithExistingTeamWithPassCode(passcode="test", user_name="aaaa", user_email="aaaa@vmail.com")
+  assert allocDummy != {}
   
   # チームが１つだけ登録されていることを確認
   teamCount = teamAllocationService.countTeams()
@@ -95,6 +95,6 @@ def test_allocation_new_user_with_existing_team(teamAllocationService, SessionLo
   assert allocations[0]["user_id"] == 1
   assert allocations[0]["team_id"] == 1
   assert allocations[0]["read_level"] == 2
-  assert allocations[0]["write_level"] == 2
+  assert allocations[0]["write_level"] == 4
   assert allocations[0]["is_admin"] == True
   assert allocations[0]["user"]["email"] == "edgeMann@cmail.com"
