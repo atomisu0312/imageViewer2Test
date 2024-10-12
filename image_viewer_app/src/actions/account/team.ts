@@ -1,4 +1,6 @@
 'use server';
+import { auth } from "@/lib/auth/auth";
+import { Session } from "next-auth";
 
 export type State = {
   errors?: {
@@ -10,14 +12,24 @@ export type State = {
 };
 
 export async function makeMyFirstTeam(prevState: State, formData: FormData) {
-  console.log("submit makeMyFirstTeam!!!!!!!!!");
-  console.log(formData.get("teamName"));
+  const session: Session | null = await auth();
 
+  console.log("submit makeMyFirstTeam!!!!!!!!!");
+  console.log(formData.get("team_name"));
+  console.log(session.user.email);
+
+  formData.append("email", session.user.email);
+  formData.append("user_name", session.user.name as string);
+
+  console.log(formData)
   try {
     // postリクエストを送る
-    const response = await fetch("http://examples.com", {
+    const response = await fetch("http://127.0.0.1:8000/welcome/new_team_and_user/", {
       method: "POST",
-      body: formData,
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ "team_name": formData.get("team_name"), "email": session.user.email, "user_name": session.user.name }),
     });
 
     if (!response.ok) {

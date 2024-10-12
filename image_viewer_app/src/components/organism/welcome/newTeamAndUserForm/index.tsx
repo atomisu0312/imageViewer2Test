@@ -25,7 +25,7 @@ export default function NewTeamAndUserForm() {
       bgColor={"bg-green-500"} buttonComponent={buttonComponent2}
       formElements={[{
         elementName: "チーム名",
-        elementId: "teamName",
+        elementId: "team_name",
         placeholder: "チーム名を入力",
         inputType: "text"
       }]}
