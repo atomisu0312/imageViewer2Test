@@ -9,8 +9,7 @@ Base = declarative_base()
 
 class Database:
   def __init__(self):
-    env_path = os.path.join(os.path.dirname(__file__), '..', '.env')
-    dotenv.load_dotenv(dotenv_path=env_path)
+    dotenv.load_dotenv()
     
     # settings of test database
     SQLALCHEMY_DATABASE_URL = 'postgresql+psycopg2://{user}:{password}@{host}/{database}'.format(

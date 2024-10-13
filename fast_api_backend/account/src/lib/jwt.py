@@ -8,6 +8,9 @@ from jose import jwe
 import time
 import uuid
 
+AUTH_JWT_SECRET= os.getenv("AUTH_JWT_SECRET", "secret")
+AUTH_JWT_SALT= os.getenv("AUTH_JWT_SALT", "secret")
+
 def get_derived_encryption_key(secret: str, salt: str) -> bytes:
   """
   Derives a 64-byte encryption key using HKDF for A256CBC-HS512.
@@ -39,8 +42,8 @@ def get_derived_encryption_key(secret: str, salt: str) -> bytes:
 
 def decode_app_jwt(token: str) -> Dict[str, Any]:
   # Fetch the Auth.js secret and salt from the environment
-  authjs_secret = "secret"
-  authjs_salt = "saltdesu"
+  authjs_secret = AUTH_JWT_SECRET
+  authjs_salt = AUTH_JWT_SALT
   
   if not authjs_secret:
     raise ValueError("AUTHJS_SECRET environment variable is not set.")
@@ -62,8 +65,8 @@ def decode_app_jwt(token: str) -> Dict[str, Any]:
 
 def encode_app_jwt(obj: Dict[str, Any], expiration_days:int = 7) -> str:
   # Fetch the Auth.js secret and salt from the environment
-  authjs_secret = "secret"
-  authjs_salt = "saltdesu"
+  authjs_secret = AUTH_JWT_SECRET
+  authjs_salt = AUTH_JWT_SALT
   
   if not authjs_secret:
     raise ValueError("AUTHJS_SECRET environment variable is not set.")
@@ -77,7 +80,6 @@ def encode_app_jwt(obj: Dict[str, Any], expiration_days:int = 7) -> str:
   try:
     data = jwe.encrypt(json.dumps(add_sub_attribute(obj, expiration_days)), key, algorithm='dir', encryption='A256CBC-HS512')
     # Parse the decrypted data into JSON
-    #encoded_token = data.encode('utf-8')
     return data.decode('utf-8')
   except Exception as e:
     print(f"Error during encryption: {e}")

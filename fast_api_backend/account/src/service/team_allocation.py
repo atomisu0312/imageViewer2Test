@@ -10,6 +10,9 @@ from src.repository.permission_allocation import PermissionAllocationRepository
 from src.lib.jwt import encode_app_jwt, decode_app_jwt
 from src.lib.array_util import interleaveString, untiInterleaveString
 
+import os
+AUTH_INTERLEAVE_DIM = int(os.getenv("AUTH_INTERLEAVE_DIM", 7))
+
 class TeamAllocationService(AbstractService):
   def __init__(self, session_factory:Callable[[], Session],
                 app_user_repository: AppUserRepository, app_team_repository: AppTeamRepository,
@@ -123,7 +126,7 @@ class TeamAllocationService(AbstractService):
   def createUserWithExistingTeamWithPassCode(self, session, passcode:str, user_name:str, user_email:str):
     decoded = {}
     try:
-      decoded = decode_app_jwt(untiInterleaveString(passcode, 8))
+      decoded = decode_app_jwt(untiInterleaveString(passcode, AUTH_INTERLEAVE_DIM))
     except Exception as e:
       print(f"Error during decryption: {e}")
       return {"message": "decryption error", "status":"failed"}
@@ -158,10 +161,10 @@ class TeamAllocationService(AbstractService):
       "team_id": team_id
     }
     
-    return interleaveString(encode_app_jwt(obj), 8)
+    return interleaveString(encode_app_jwt(obj), AUTH_INTERLEAVE_DIM)
   
   """
   パスコードをデコードしてオブジェクトを取り出す
   """
   def decodePassCode(self, code: str) -> dict[str, Any]:
-    return decode_app_jwt(untiInterleaveString(code, 8))
+    return decode_app_jwt(untiInterleaveString(code, AUTH_INTERLEAVE_DIM))
