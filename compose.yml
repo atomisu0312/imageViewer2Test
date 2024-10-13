@@ -12,5 +12,35 @@ services:
     volumes:
       - ./database/db/init:/docker-entrypoint-initdb.d
       - postgres_volume:/var/lib/postgresql/data
+    networks:
+      - app-network
+  front:
+    build:
+      context: ./image_viewer_app
+      dockerfile: Dockerfile
+    container_name: 'test-front-sandbox'
+    env_file:
+      - .env.docker
+    environment:
+      NODE_ENV: ${NODE_ENV}
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
+      NEXTAUTH_URL: ${NEXTAUTH_URL}
+      NEXTAUTH_SECRET: ${NEXTAUTH_SECRET}
+      AUTH_TRUST_HOST: TRUE
+      PG_DB_HOST: db
+      PG_DB_PORT: 5432
+      PG_DB_USER: ${PG_DB_USER}
+      PG_DB_PASSWORD: ${PG_DB_PASSWORD}
+      PG_DB_NAME: ${PG_DB_NAME}
+      FASTAPI_ACCOUNT_SERVICE_HOST: ${FASTAPI_ACCOUNT_SERVICE_HOST}
+    ports:
+      - '3030:3030'
+    networks:
+      - app-network
 volumes:
   postgres_volume:
+
+networks:
+  app-network:
+    driver: bridge
