@@ -24,7 +24,7 @@ export async function makeMyFirstTeam(prevState: State, formData: FormData) {
   console.log(formData)
   try {
     // postリクエストを送る
-    const response = await fetch("http://127.0.0.1:8000/welcome/new_team_and_user/", {
+    const response = await fetch(`${process.env.FASTAPI_ACCOUNT_SERVICE_HOST}/welcome/new_team_and_user/`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
