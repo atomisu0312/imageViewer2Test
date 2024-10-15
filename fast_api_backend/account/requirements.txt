@@ -6,7 +6,6 @@
 #   features: []
 #   all-features: false
 
--e file:.
 annotated-types==0.7.0
 anyio==4.6.2.post1
 async-exit-stack==1.0.1
