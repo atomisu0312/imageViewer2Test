@@ -14,10 +14,10 @@ class DatabaseForTest:
     # settings of test database
     TEST_SQLALCHEMY_DATABASE_URL = 'postgresql+psycopg2://{user}:{password}@{host}/{database}'.format(
     **{
-    'user': os.getenv('DB_USER', 'sample_user'),
-    'password': os.getenv('DB_PASSWORD', 'password'),
-    'host': os.getenv('DB_HOST', 'localhost:5432'),
-    'database': os.getenv('DB_DATABASE_TEST', 'test_schema'),
+    'user': os.getenv('PG_DB_USER', 'sample_user'),
+    'password': os.getenv('PG_DB_PASSWORD', 'password'),
+    'host': os.getenv('PG_DB_HOST', 'localhost:5432'),
+    'database': os.getenv('PG_DB_DATABASE_TEST', 'test_schema'),
     })
     
     self._engine = create_engine(

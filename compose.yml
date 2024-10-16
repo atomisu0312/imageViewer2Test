@@ -1,8 +1,7 @@
-version: '3.7'
 services:
   db:
     image: postgres:14.7-alpine
-    container_name: 'test-db-sandboxs'
+    container_name: 'test-db-sandbox'
     ports:
       - '5432:5432'
     environment:
@@ -18,15 +17,26 @@ services:
     build:
       context: ./image_viewer_app
       dockerfile: Dockerfile
+      args:
+        NODE_ENV: ${NODE_ENV}
+        GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+        GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
+        NEXTAUTH_URL: ${NEXTAUTH_URL}
+        AUTH_SECRET: ${AUTH_SECRET}
+        AUTH_TRUST_HOST: TRUE
+        PG_DB_HOST: db
+        PG_DB_PORT: 5432
+        PG_DB_USER: ${PG_DB_USER}
+        PG_DB_PASSWORD: ${PG_DB_PASSWORD}
+        PG_DB_NAME: ${PG_DB_NAME}
+        FASTAPI_ACCOUNT_SERVICE_HOST: ${FASTAPI_ACCOUNT_SERVICE_HOST}
     container_name: 'test-front-sandbox'
-    env_file:
-      - .env.docker
     environment:
       NODE_ENV: ${NODE_ENV}
       GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
       GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
       NEXTAUTH_URL: ${NEXTAUTH_URL}
-      NEXTAUTH_SECRET: ${NEXTAUTH_SECRET}
+      AUTH_SECRET: ${AUTH_SECRET}
       AUTH_TRUST_HOST: TRUE
       PG_DB_HOST: db
       PG_DB_PORT: 5432
@@ -38,6 +48,27 @@ services:
       - '3030:3030'
     networks:
       - app-network
+  back_flask:
+    build:
+      context: ./fast_api_backend/account
+      dockerfile: Dockerfile
+    container_name: 'test-back-flask-sandbox'
+    environment:
+      AUTH_TRUST_HOST: TRUE
+      PG_DB_HOST: db
+      PG_DB_PORT: 5432
+      PG_DB_USER: ${PG_DB_USER}
+      PG_DB_PASSWORD: ${PG_DB_PASSWORD}
+      PG_DB_NAME: ${PG_DB_NAME}
+      FASTAPI_ACCOUNT_SERVICE_HOST: ${FASTAPI_ACCOUNT_SERVICE_HOST}
+      AUTH_INTERLEAVE_DIM: ${AUTH_INTERLEAVE_DIM}
+      AUTH_JWT_SECRET: ${AUTH_JWT_SECRET}
+      AUTH_JWT_SALT: ${AUTH_JWT_SALT}
+    ports:
+      - '8001:8080'
+    networks:
+      - app-network
+
 volumes:
   postgres_volume:
 

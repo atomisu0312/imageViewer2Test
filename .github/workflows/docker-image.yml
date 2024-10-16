@@ -32,10 +32,10 @@ jobs:
       env:
         GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
         GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
-        NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
+        AUTH_SECRET: ${{ secrets.AUTH_SECRET }}
         NEXTAUTH_URL: ${{ secrets.NEXTAUTH_URL }}
       run: |
-        docker build ./image_viewer_app --file ./image_viewer_app/Dockerfile --tag img_viewer2_nextjs_action:${{ env.time_stamp }} --platform linux/amd64 --build-arg NEXTAUTH_URL=${{ secrets.NEXTAUTH_URL }} --build-arg GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }} --build-arg GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }} --build-arg NEXTAUTH_SECRET=${{ secrets.NEXTAUTH_SECRET }} --build-arg AUTH_TRUST_HOST=TRUE
+        docker build ./image_viewer_app --file ./image_viewer_app/Dockerfile --tag img_viewer2_nextjs_action:${{ env.time_stamp }} --platform linux/amd64 --build-arg NEXTAUTH_URL=${{ secrets.NEXTAUTH_URL }} --build-arg GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }} --build-arg GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }} --build-arg AUTH_SECRET=${{ secrets.AUTH_SECRET }} --build-arg AUTH_TRUST_HOST=TRUE
         echo "::set-output name=image_tag::img_viewer2_nextjs_action:${{ env.time_stamp }}"
     - name: login to docker hub
       env:
