@@ -20,8 +20,11 @@ psql -U postgres --command="ALTER ROLE image_viewer CREATEDB"
 psql -U postgres --command="CREATE DATABASE test_image_viewer LC_COLLATE 'ja_JP.UTF-8' LC_CTYPE 'ja_JP.UTF-8' ENCODING 'UTF8' TEMPLATE template0"
 psql -U postgres --command="ALTER DATABASE test_image_viewer OWNER TO image_viewer"
 psql -U postgres --command="GRANT ALL PRIVILEGES ON DATABASE test_image_viewer TO image_viewer"
-  
+
+set PGDATABASE=image_viewer
 set PGPASSWORD=password00
 psql -U image_viewer -d image_viewer --command="CREATE SCHEMA image"
-set PGPASSWORD=password00
+set PGUSER=image_viewer
 psql -U image_viewer -d test_image_viewer --command="CREATE SCHEMA image"
+
+psql -U image_viewer -d image_viewer -f /docker-entrypoint-initdb.d/sql/02-user.sql

@@ -16,7 +16,7 @@ class Database:
     **{
     'user': os.getenv('PG_DB_USER', 'sample_user'),
     'password': os.getenv('PG_DB_PASSWORD', 'password'),
-    'host': os.getenv('PG_DB_HOST', 'localhost:5432'),
+    'host': os.getenv('PG_DB_HOST_PORT', 'db:5432'),
     'database': os.getenv('PG_DB_NAME', 'schema'),
     })
     

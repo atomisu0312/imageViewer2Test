@@ -43,7 +43,6 @@ async def create_new_following_user(request: NewFollowingUserRequest = Body(...)
 @welcome_router.get("/account/get_user/{id}")
 @inject
 async def get_user_by_id(id: int, service = Depends(Provide[Container.allocation_service])):
-    logger.info("Getting entity succeeded")
     res = service.findAppUserById(id)
     return {"message": "Getting entity succeeded","result": res}
 

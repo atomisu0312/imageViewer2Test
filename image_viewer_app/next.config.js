@@ -21,6 +21,7 @@ const nextConfig = {
     GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
     AUTH_SECRET: process.env.AUTH_SECRET,
     AUTH_TRUST_HOST: process.env.AUTH_TRUST_HOST,
+    FASTAPI_ACCOUNT_SERVICE_HOST: process.env.FASTAPI_ACCOUNT_SERVICE_HOST,
   },
   output: 'standalone',
   webpack: (config, { isServer }) => {

@@ -48,19 +48,16 @@ services:
       - '3030:3030'
     networks:
       - app-network
-  back_flask:
+  back_fastapi_account:
     build:
       context: ./fast_api_backend/account
       dockerfile: Dockerfile
     container_name: 'test-back-flask-sandbox'
     environment:
-      AUTH_TRUST_HOST: TRUE
-      PG_DB_HOST: db
-      PG_DB_PORT: 5432
+      PG_DB_HOST_PORT: db:5432
       PG_DB_USER: ${PG_DB_USER}
       PG_DB_PASSWORD: ${PG_DB_PASSWORD}
       PG_DB_NAME: ${PG_DB_NAME}
-      FASTAPI_ACCOUNT_SERVICE_HOST: ${FASTAPI_ACCOUNT_SERVICE_HOST}
       AUTH_INTERLEAVE_DIM: ${AUTH_INTERLEAVE_DIM}
       AUTH_JWT_SECRET: ${AUTH_JWT_SECRET}
       AUTH_JWT_SALT: ${AUTH_JWT_SALT}

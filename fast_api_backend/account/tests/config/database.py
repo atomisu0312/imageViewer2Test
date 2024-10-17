@@ -16,7 +16,7 @@ class DatabaseForTest:
     **{
     'user': os.getenv('PG_DB_USER', 'sample_user'),
     'password': os.getenv('PG_DB_PASSWORD', 'password'),
-    'host': os.getenv('PG_DB_HOST', 'localhost:5432'),
+    'host': os.getenv('PG_DB_HOST_PORT', 'localhost:5432'),
     'database': os.getenv('PG_DB_DATABASE_TEST', 'test_schema'),
     })
     
