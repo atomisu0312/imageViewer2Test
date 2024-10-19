@@ -48,3 +48,9 @@ def test_create_user2():
   response_content = response.json()
   passcode = response_content["result"]
   assert response_content["result"] == None
+  
+  # チームIDとユーザのメールアドレスを指定して登録情報を取得できることを確認
+  response = client.get("/account/find_allocation_by_team_id_and_user_email?team_id=1&email=hoge@gmail.com") 
+  response_content = response.json()
+  assert response_content['result']['team']['name'] == "team1"
+  assert response_content['result']['read_level'] == 2

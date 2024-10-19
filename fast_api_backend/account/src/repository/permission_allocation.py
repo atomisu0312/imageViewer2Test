@@ -17,6 +17,13 @@ class PermissionAllocationRepository:
   def findAllcationListWithUserId(self, db: Session, user_id: int):
     return db.query(models.PermissionAllocation).options(joinedload(models.PermissionAllocation.user)).options(joinedload(models.PermissionAllocation.team)).filter(models.PermissionAllocation.user_id == user_id).all()
   
+  def findAllocationWithTeamIdAndUserEmail(self, db: Session, team_id: int, email: str):
+    return db.query(models.PermissionAllocation).options(
+                    joinedload(models.PermissionAllocation.user)).options(
+                      joinedload(models.PermissionAllocation.team)).filter(
+                        models.PermissionAllocation.team_id == team_id).filter(
+                          models.PermissionAllocation.user.has(email=email)).first()
+  
   def insertAllocationWithNewTeamAndNewUser(self, db: Session, allocation: schemas.PermissionAllocationForCreate):
     allocation_object: dict = allocation.to_dict()
     user = allocation_object["user"]

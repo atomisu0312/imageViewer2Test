@@ -66,6 +66,14 @@ class TeamAllocationService(AbstractService):
     return res.__dict__ if res else None
   
   """
+  登録情報をチームIDとユーザのメールアドレスをキーにして取得する
+  """
+  @AbstractService.with_session_readonly
+  def findAllocationByTeamIdAndUserEmail(self, session, team_id: int, email: str):
+    res = self.permission_allocation_repository.findAllocationWithTeamIdAndUserEmail(session, team_id, email)
+    return self.entity_to_dict(res)
+  
+  """
   登録情報をID指定で取得する
   """
   @AbstractService.with_session_readonly

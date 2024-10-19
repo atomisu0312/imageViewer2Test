@@ -11,7 +11,7 @@ class TestClassA:
     self.a = "a"
     
 class Container(containers.DeclarativeContainer):
-  wiring_config = containers.WiringConfiguration(["src.endpoints.welcome"])
+  wiring_config = containers.WiringConfiguration(["src.endpoints.welcome", "src.endpoints.accountview"])
   config = providers.Configuration()
   
   db = providers.Singleton(Database)

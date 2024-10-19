@@ -70,6 +70,7 @@ def test_allocation_new_user_with_existing_team(teamAllocationService, SessionLo
   assert list[0]["user"]["email"] == "edgeMann@cmail.com"
   assert list[0]["user"]["name"] == "edgeMan"
   assert list[0]["team"]["name"] == "trinity"
+  
   # 2つ目のオブジェクトの検証
   assert list[1]["user_id"] == 2
   assert list[1]["team_id"] == 1
@@ -98,3 +99,9 @@ def test_allocation_new_user_with_existing_team(teamAllocationService, SessionLo
   assert allocations[0]["write_level"] == 2
   assert allocations[0]["is_admin"] == True
   assert allocations[0]["user"]["email"] == "edgeMann@cmail.com"
+  
+  # チームIDとユーザのメルアドから関連テーブルを持って来れることを確認
+  allo = teamAllocationService.findAllocationByTeamIdAndUserEmail(team_id=1, email= "aaaa@vmail.com")
+  assert allo["user"]["name"] == "aaaa"
+  assert allo["team"]["name"] == "trinity"
+  assert allo["read_level"] == 0
