@@ -4,7 +4,6 @@ import { getDataFromApiKey } from '@/actions/fileActions';
 import '@/app/globals.css';
 import ImageView from '@/components/template/imageView';
 import SelectArea from '@/components/template/selectArea';
-import ApiForm from '@/components/template/apiSubmit';
 import { fileInfoType, NONE } from '@/types/fileInfoType';
 import React, { useEffect, useState } from 'react';
 
