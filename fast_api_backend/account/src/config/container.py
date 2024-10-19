@@ -28,6 +28,4 @@ class Container(containers.DeclarativeContainer):
       permission_allocation_repository=permission_allocation_repository
   )
   
-  test = providers.Factory(TestClassA)
-  
   

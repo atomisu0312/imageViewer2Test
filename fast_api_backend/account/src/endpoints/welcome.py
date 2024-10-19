@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, Response, status  
 from dependency_injector.wiring import inject, Provide
-from src.config.container import Container, TestClassA
+from src.config.container import Container
 
 from src.service.team_allocation import TeamAllocationService
 
@@ -20,8 +20,7 @@ def get_some_user(service :TeamAllocationService = Depends(Provide[Container.all
 
 @welcome_router.get("/")
 @inject
-def hello(testc: TestClassA = Depends(Provide[Container.test])):
-    assert testc.a == "a"
+def hello():
     return {"message": "Hello World"}
 
 @welcome_router.post("/welcome/new_team_and_user")
