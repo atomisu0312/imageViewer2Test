@@ -14,9 +14,6 @@ export const getData = async () => {
   return data as fileInfoType[];
 }
 
-interface Props {
-  apiKey: String;
-}
 export const getDataFromApiKey = async () => {
   const res = await fetch('https://api.gyazo.com/api/images', {
     method: 'GET',
