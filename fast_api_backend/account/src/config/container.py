@@ -5,10 +5,6 @@ from src.repository.app_team import AppTeamRepository
 from src.repository.permission_allocation import PermissionAllocationRepository
 from src.service.team_allocation import TeamAllocationService
 from src.config.database import Database
-
-class TestClassA:
-  def __init__(self):
-    self.a = "a"
     
 class Container(containers.DeclarativeContainer):
   wiring_config = containers.WiringConfiguration(["src.endpoints.welcome", "src.endpoints.accountview"])
