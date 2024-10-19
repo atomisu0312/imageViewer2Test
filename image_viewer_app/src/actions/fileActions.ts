@@ -17,15 +17,12 @@ export const getData = async () => {
 interface Props {
   apiKey: String;
 }
-export const getDataFromApiKey = async (apiKey: String) => {
+export const getDataFromApiKey = async () => {
   const res = await fetch('https://api.gyazo.com/api/images', {
     method: 'GET',
     headers: {
-      'Authorization': `Bearer ${apiKey}`
+      'Authorization': `Bearer ${process.env.GYAZP_APP_TOKEN_FOR_APP}`
     },
-    next: {
-      tags: ['collection']
-    }
   });
   const dataTest = await res.json();
 
