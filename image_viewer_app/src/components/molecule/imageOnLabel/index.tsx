@@ -19,7 +19,6 @@ export default function ImageOnLabel({ labelText, imageUrl, className }: Props) 
           height={1000}
           width={1000}
           fallback="/Donald.jpg" />
-        <TextLabel text={labelText} />
       </div>
     </>
   )
