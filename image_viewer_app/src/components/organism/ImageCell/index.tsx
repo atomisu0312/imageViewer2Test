@@ -12,7 +12,7 @@ export default function ImageCell({ data, setTargetData }: Props) {
     setTargetData(data);
   }
   return (
-    <div onClick={handleClick} className="w-1/3">
+    <div onClick={handleClick} className="w-1/12">
       <ImageOnLabel labelText={data.text} imageUrl={data.imageUrl} />
     </div>)
 }
