@@ -1,18 +1,38 @@
-import ImageCell from "@/components/organism/ImageCell";
-import { fileInfoType } from "@/types/fileInfoType";
+import { getDataFromApiKey, getDataSample } from '@/actions/fileActions';
+import { fileInfoType } from '@/types/fileInfoType';
+import React, { useEffect, useState, Suspense, lazy } from 'react';
+
+const ImageCell = lazy(() => import('@/components/organism/ImageCell'));
 
 interface Props {
-  data: fileInfoType[],
-  setTargetData: (data: fileInfoType) => void
+  setTargetData: (data: fileInfoType | undefined) => void
 }
 
-export default function SelectArea({ data, setTargetData }: Props) {
+export default function SelectAreaNew({ setTargetData }: Props) {
+  const [data, setData] = useState<fileInfoType[] | null>(null);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        // ここでデータを非同期にフェッチ
+        const result = await getDataSample();
+        setData(result);
+      } catch (error) {
+        console.error('データのフェッチに失敗しました', error);
+      }
+    };
+
+    fetchData();
+  }, []);
+
   return (
-    <>
-      <div className="flex flex-wrap justify-center">
-        {data.map((e) =>
-          <ImageCell key={e.id} data={e} setTargetData={setTargetData} />)}
-      </div>
-    </>
-  )
+
+    <div className="flex flex-wrap justify-center">
+      <Suspense fallback={<div>Loading...</div>}>
+        {data && data.map((e) =>
+          <ImageCell key={e.id} data={e} setTargetData={setTargetData} />
+        )}
+      </Suspense>
+    </div>
+  );
 }

@@ -10,7 +10,7 @@ function HeaderComponent() {
         <div className="col-span-1"></div>
         <div className="col-span-10">
           <span>
-            画像共有アプリ（仮題）
+            Image Viewer
           </span>
         </div>
         <div className="col-span-1">
