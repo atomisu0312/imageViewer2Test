@@ -13,7 +13,7 @@ const redirectIfNotHaveAccount = async () => {
   const authorized = await checkAuthorizedByUserEmail(session.user.email);
 
   if (!authorized) {
-    redirect('/front/imageViewer');
+    redirect('/imageViewer');
   }
 }
 
@@ -28,7 +28,7 @@ const redirectIfHaveAccount = async () => {
   const authorized = await checkAuthorizedByUserEmail(session.user.email);
 
   if (authorized) {
-    redirect('/front/imageViewer');
+    redirect('/imageViewer');
   }
 }
 

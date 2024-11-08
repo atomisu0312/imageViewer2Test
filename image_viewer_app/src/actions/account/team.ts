@@ -39,9 +39,9 @@ export async function makeMyFirstTeam(prevState: State, formData: FormData) {
 
   } finally {
     // キャッシュをクリアするメソッドなんだけど、リダイレクト前のおまじないみたいな扱いになっとる
-    revalidatePath('/front/imageViewer');
+    revalidatePath('/imageViewer');
     // リダイレクト処理 
-    redirect('/front/imageViewer');
+    redirect('/imageViewer');
   }
 }
 
@@ -70,8 +70,8 @@ export async function makeFollowerWithKey(prevState: State, formData: FormData) 
   } finally {
 
     // キャッシュをクリアするメソッドなんだけど、リダイレクト前のおまじないみたいな扱いになっとる
-    revalidatePath('/front/imageViewer');
+    revalidatePath('/imageViewer');
     // リダイレクト処理 
-    redirect('/front/imageViewer');
+    redirect('/imageViewer');
   }
 }

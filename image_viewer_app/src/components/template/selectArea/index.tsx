@@ -27,7 +27,7 @@ export default function SelectAreaNew({ setTargetData }: Props) {
 
   return (
 
-    <div className="flex flex-wrap justify-center px-5">
+    <div className="flex flex-wrap justify-center">
       <Suspense fallback={<div>Loading...</div>}>
         {data && data.map((e) =>
           <ImageCell key={e.id} data={e} setTargetData={setTargetData} />

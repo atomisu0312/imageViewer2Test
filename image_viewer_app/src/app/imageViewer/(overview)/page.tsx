@@ -10,7 +10,7 @@ import { checkAuthorizedByUserEmail } from "@/lib/account/account";
  * @returns 
  */
 const Welcome = () => {
-  redirect('/front/imageViewer/welcome');
+  redirect('/imageViewer/welcome');
   return <></>;
 }
 
@@ -19,7 +19,7 @@ const Welcome = () => {
  * @returns 
  */
 const MyApp = () => {
-  redirect('/front/imageViewer/app');
+  redirect('/imageViewer/app');
   return <></>
 }
 /**
