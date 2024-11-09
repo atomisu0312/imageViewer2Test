@@ -7,12 +7,16 @@ interface Props {
   className?: string
 }
 
-export default function ImageCell({ data, setTargetData, className }: Props) {
+export default function ImageCellClickable({ data, setTargetData, className }: Props) {
   const handleClick = () => {
     setTargetData(data);
   }
   return (
-    <div onClick={handleClick} className="w-1/12">
-      <ImageOnLabel labelText={data.text} imageUrl={data.imageUrl} className={className} />
+    <div onClick={handleClick} className={className}>
+      <img
+        src={data.imageUrl}
+        alt="Your alt text"
+        className="h-full"
+      />
     </div>)
 }

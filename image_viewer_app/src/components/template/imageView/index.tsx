@@ -26,7 +26,7 @@ export default function ImageView({ data }: Props) {
           alt="sampleImage"
           sizes=""
           className="flex-1 object-contain border-4 border-collapse border-gray-300"
-          style={{ borderRadius: '70px', maxHeight: '70vh' }}
+          style={{ borderRadius: '70px', maxHeight: '50vh' }}
         />
       </ImgViewerTestCompOverRayNoSSR>
     </div>
