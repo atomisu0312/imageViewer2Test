@@ -8,7 +8,7 @@ interface Props {
   setTargetData: (data: fileInfoType | undefined) => void
 }
 
-export default function SelectAreaNew({ setTargetData }: Props) {
+export default function SelectArea({ setTargetData }: Props) {
   const [data, setData] = useState<fileInfoType[] | null>(null);
 
   useEffect(() => {
