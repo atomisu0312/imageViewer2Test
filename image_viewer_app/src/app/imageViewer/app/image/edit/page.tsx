@@ -1,16 +1,21 @@
+'use client'
 import '@/app/globals.css';
-
-import { AppFront } from '@/components/template/appFront';
-import { redirectIfNotHaveAccount } from '@/lib/account/rooting';
-
+import { EmblaOptionsType } from 'embla-carousel'
+import EmblaCarousel from './EmblaCarousel'
+const OPTIONS: EmblaOptionsType = {
+  dragFree: true,
+  containScroll: 'keepSnaps',
+  watchSlides: false,
+  watchResize: false
+}
+const SLIDE_COUNT = 5
+const SLIDES = Array.from(Array(SLIDE_COUNT).keys())
 /**
  * appページ用のエンドポイント
  * @returns 
  */
-export default async function Page() {
-  await redirectIfNotHaveAccount();
-
+export default function Page() {
   return (
-    <AppFront />
+    <EmblaCarousel slides={SLIDES} options={OPTIONS} />
   );
 }
