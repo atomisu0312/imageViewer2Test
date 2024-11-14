@@ -1,4 +1,3 @@
-import ImageOnLabel from "@/components/molecule/imageOnLabel"
 import { fileInfoType } from "@/types/fileInfoType"
 
 interface Props {

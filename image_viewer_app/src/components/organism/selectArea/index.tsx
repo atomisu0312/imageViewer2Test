@@ -8,12 +8,12 @@ const OPTIONS: EmblaOptionsType = {
   watchSlides: false,
   watchResize: false
 }
-import { getDataFromApiKey, getDataSample } from '@/actions/fileActions';
+import { getDataSample } from '@/actions/fileActions';
 import { fileInfoType } from '@/types/fileInfoType';
 import React, { useEffect, useState, Suspense, lazy } from 'react';
 
-const SLIDE_COUNT = 5
-const SLIDES = Array.from(Array(SLIDE_COUNT).keys())
+
+
 /**
  * appページ用のエンドポイント
  * @returns 
@@ -37,7 +37,7 @@ export default function Page({ setTargetData }) {
 
   return (
     <Suspense fallback={<div>Loading...</div>}>
-      <EmblaCarousel slides={SLIDES} options={OPTIONS} data={data} setTargetData={setTargetData} />
+      <EmblaCarousel options={OPTIONS} data={data} setTargetData={setTargetData} />
     </Suspense>
   );
 }

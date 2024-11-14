@@ -9,10 +9,9 @@ import {
 } from '@/components/organism/selectArea/EmblaCarouselArrowButtons'
 
 import { getSampleDataImage } from '@/actions/images/selector'
-import { fileInfoType, NONE } from '@/types/fileInfoType';
+import { fileInfoType } from '@/types/fileInfoType';
 
 type PropType = {
-  slides: number[]
   options?: EmblaOptionsType
   data: fileInfoType[]
   setTargetData: (data: fileInfoType) => void
@@ -20,10 +19,7 @@ type PropType = {
 
 const ImageCellClickable = lazy(() => import('@/components/organism/ImageCelllClickable'));
 
-const MAX_PAGE_SIZE = 10
-
-const EmblaCarousel: React.FC<PropType> = (props) => {
-  const { options, slides: propSlides, data: data, setTargetData } = props
+export default function EmblaCarousel({ options, data, setTargetData }: PropType) {
   const [slides, setSlides] = useState(data)
 
   const [flag, setFlag] = useState(false)
@@ -50,8 +46,6 @@ const EmblaCarousel: React.FC<PropType> = (props) => {
 
   const onScroll = useCallback(async (emblaApi: EmblaCarouselType) => {
     if (flag) return
-    console.log(emblaApi.slidesInView())
-
     if (emblaApi.slidesInView().length > 3) return
     setFlag(true)
 
@@ -66,6 +60,7 @@ const EmblaCarousel: React.FC<PropType> = (props) => {
       setEndPage(newEndPage)
 
       emblaApi.scrollTo(emblaApi.slidesInView()[0] - 4)
+      emblaApi.reInit()
 
     } else {
       const newStartPage = startPage - 5;
@@ -78,6 +73,7 @@ const EmblaCarousel: React.FC<PropType> = (props) => {
         setEndPage(newEndPage)
 
         emblaApi.scrollTo(emblaApi.slidesInView()[0] + 5)
+        emblaApi.reInit()
       }
     }
     setFlag(false)
@@ -136,5 +132,3 @@ const EmblaCarousel: React.FC<PropType> = (props) => {
 
   )
 }
-
-export default EmblaCarousel
