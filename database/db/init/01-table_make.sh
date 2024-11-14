@@ -28,3 +28,4 @@ set PGUSER=image_viewer
 psql -U image_viewer -d test_image_viewer --command="CREATE SCHEMA image"
 
 psql -U image_viewer -d image_viewer -f /docker-entrypoint-initdb.d/sql/02-user.sql
+psql -U image_viewer -d test_image_viewer -f /docker-entrypoint-initdb.d/sql/03-account-test.sql
