@@ -1,13 +1,12 @@
 package main
 
 import (
-	"context"
-	"fmt"
 	"image_viewer/account/config"
 	"image_viewer/account/usecase"
-	"log"
+	"net/http"
 
 	"github.com/joho/godotenv"
+	"github.com/labstack/echo/v4"
 	"github.com/samber/do"
 
 	_ "github.com/lib/pq" // PostgreSQL ドライバをインポート
@@ -15,7 +14,7 @@ import (
 
 func main() {
 
-	err := godotenv.Load(".env")
+	_ = godotenv.Load(".env")
 
 	injector := do.New()
 
@@ -23,6 +22,13 @@ func main() {
 
 	do.Provide(injector, usecase.NewUseCase)
 
+	e := echo.New()
+	e.GET("/", func(c echo.Context) error {
+		return c.String(http.StatusOK, "Hello, World!")
+	})
+	e.Logger.Fatal(e.Start(":1323"))
+
+	/**
 	ctx := context.Background()
 
 	// UseCaseのインスタンスを作成
@@ -37,4 +43,5 @@ func main() {
 
 	// 結果を表示
 	fmt.Printf("result: %s\n", result.Email)
+	**/
 }
