@@ -2,8 +2,8 @@ package repository
 
 import (
 	"context"
+	"image_viewer/account/config"
 	"image_viewer/account/gen"
-	"image_viewer/account/test/config"
 	"log"
 	"os"
 	"testing"
@@ -61,8 +61,4 @@ func TestSome(t *testing.T) {
 	a, _ := repo.GetUserById(ctx, 1)
 
 	assert.Equal(t, "testuser", a.Name, "The user's name should be 'testuser'")
-}
-
-func TestSome2(t *testing.T) {
-	assert.True(t, true)
 }
