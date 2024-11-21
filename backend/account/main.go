@@ -2,6 +2,7 @@ package main
 
 import (
 	"image_viewer/account/config"
+	"image_viewer/account/handler"
 	"image_viewer/account/usecase"
 	"net/http"
 
@@ -19,12 +20,14 @@ func main() {
 	injector := do.New()
 
 	do.Provide(injector, config.NewDbConnection)
-
 	do.Provide(injector, usecase.NewAppUseCase)
-
 	e := echo.New()
 	e.GET("/", func(c echo.Context) error {
 		return c.String(http.StatusOK, "Hello, World!")
 	})
+
+	api := e.Group("/api")
+	h := handler.NewHandler()
+	h.AddHelloHandler(api)
 	e.Logger.Fatal(e.Start(":1323"))
 }
