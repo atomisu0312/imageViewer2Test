@@ -9,10 +9,6 @@ import (
 	"github.com/samber/do"
 )
 
-type DbConn struct {
-	*sql.DB
-}
-
 func NewDbConnection(i *do.Injector) (*DbConn, error) {
 	dbURI := fmt.Sprintf("postgres://%s:%s@%s/%s?sslmode=disable",
 		env.GetAsString("PG_DB_USER", "image_viewer"),

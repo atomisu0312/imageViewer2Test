@@ -1,9 +1,8 @@
-package usecase_test
+package usecase
 
 import (
 	"context"
 	"image_viewer/account/config"
-	"image_viewer/account/usecase"
 	"log"
 	"os"
 	"testing"
@@ -15,7 +14,7 @@ import (
 )
 
 var dbConn *config.DbConn
-var useCase usecase.AppUserUseCase
+var userUseCase UserUseCase
 var injector *do.Injector
 
 func TestMain(m *testing.M) {
@@ -26,10 +25,10 @@ func TestMain(m *testing.M) {
 
 	dbConn = do.MustInvoke[*config.DbConn](injector)
 
-	do.Provide(injector, usecase.NewAppUseCase)
+	do.Provide(injector, NewAppUseCase)
 
 	// UseCaseのインスタンスを作成
-	useCase = do.MustInvoke[usecase.AppUserUseCase](injector)
+	userUseCase = do.MustInvoke[UserUseCase](injector)
 
 	// Clean up: Delete the inserted data
 	_, err := dbConn.Exec(`
@@ -43,7 +42,7 @@ func TestMain(m *testing.M) {
 
 	// Insert initial data
 	_, err = dbConn.Exec(`
-        INSERT INTO app_user (id, name, email) VALUES (1, 'testuser', 'testuser@example.com');
+        INSERT INTO app_user (id, name, email) VALUES (1, 'testUser', 'testuser@example.com');
         INSERT INTO app_team (id, name) VALUES (1, 'testteam');
     `)
 	if err != nil {
@@ -72,12 +71,12 @@ func TestFindUserById(t *testing.T) {
 	ctx := context.Background()
 
 	// ユースケースの実行
-	result, err := useCase.FindUserById(ctx, 1)
+	result, err := userUseCase.FindUserById(ctx, 1)
 
 	if err != nil {
 		log.Fatalln("Error creating workout transaction:", err)
 	}
 
 	// 結果を表示
-	assert.Equal(t, "testuser", result.Name, "The user's name should be 'testuser'")
+	assert.Equal(t, "testUser", result.Name, "The user's name should be 'testuser'")
 }

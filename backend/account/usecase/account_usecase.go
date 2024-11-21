@@ -10,26 +10,26 @@ import (
 	"github.com/samber/do"
 )
 
-type useAppUserUseCaseImpl struct {
+type userUseCaseImpl struct {
 	*useCase
 }
 
-type AppUserUseCase interface {
+type UserUseCase interface {
 	FindUserById(ctx context.Context, userId int64) (gen.AppUser, error)
 }
 
 // NewUseCase は新しい UseCase インスタンスを作成します
-func NewAppUseCase(i *do.Injector) (AppUserUseCase, error) {
-	return NewUseCase(i, func(u *useCase) AppUserUseCase {
-		return &useAppUserUseCaseImpl{u}
+func NewAppUseCase(i *do.Injector) (UserUseCase, error) {
+	return NewUseCase(i, func(u *useCase) UserUseCase {
+		return &userUseCaseImpl{u}
 	})
 }
 
-// AddWorkoutTx はワークアウトを作成するトランザクションを実行します
-func (useCase *useAppUserUseCaseImpl) FindUserById(ctx context.Context, userId int64) (gen.AppUser, error) {
+// UserをIDで検索する
+func (useCase *userUseCaseImpl) FindUserById(ctx context.Context, userId int64) (gen.AppUser, error) {
 	var result gen.AppUser
 	tr := transaction.NewTx(useCase.dbConn.DB)
-	err := tr.ExecTx(ctx, func(q *gen.Queries) error {
+	err := tr.ExecNonTx(ctx, func(q *gen.Queries) error {
 		repo := repository.NewAccountRepository(q)
 
 		workout, err := repo.GetUserById(ctx, userId)
