@@ -15,6 +15,7 @@ type userUseCaseImpl struct {
 }
 
 type UserUseCase interface {
+	UseCase
 	FindUserById(ctx context.Context, userId int64) (gen.AppUser, error)
 }
 
@@ -24,6 +25,8 @@ func NewAppUseCase(i *do.Injector) (UserUseCase, error) {
 		return &userUseCaseImpl{u}
 	})
 }
+
+func (useCase *userUseCaseImpl) emptyFunc() {}
 
 // UserをIDで検索する
 func (useCase *userUseCaseImpl) FindUserById(ctx context.Context, userId int64) (gen.AppUser, error) {

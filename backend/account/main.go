@@ -20,11 +20,13 @@ func main() {
 
 	do.Provide(injector, config.NewDbConnection)
 	do.Provide(injector, usecase.NewAppUseCase)
+	do.Provide(injector, handler.NewHelloHandler)
 
 	e := echo.New()
 	api := e.Group("/account")
 
-	h := handler.NewHandler()
-	h.AddHelloHandler(api)
+	helloHandler := do.MustInvoke[handler.HelloHandler](injector)
+	helloHandler.AddHandler(api)
+
 	e.Logger.Fatal(e.Start(":1323"))
 }

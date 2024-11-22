@@ -11,8 +11,12 @@ type useCase struct {
 	dbConn *config.DbConn
 }
 
+type UseCase interface {
+	emptyFunc()
+}
+
 // NewUseCase は新しい UseCase インスタンスを作成します
-func NewUseCase[T any](i *do.Injector, constructor func(*useCase) T) (T, error) {
+func NewUseCase[T interface{ UseCase }](i *do.Injector, constructor func(*useCase) T) (T, error) {
 	dbConn := do.MustInvoke[*config.DbConn](i)
 
 	return constructor(&useCase{
