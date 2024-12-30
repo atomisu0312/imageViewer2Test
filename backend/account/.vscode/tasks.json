@@ -28,5 +28,10 @@
       "type": "shell",
       "command": "go test -run ^TestJson$ ./util -v",
     },
+    {
+      "label": "sqlcによるコードの自動生成",
+      "type": "shell",
+      "command": "go run github.com/sqlc-dev/sqlc/cmd/sqlc generate",
+    },
   ]
 }

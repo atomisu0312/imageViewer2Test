@@ -4,66 +4,18 @@ import (
 	"context"
 	"image_viewer/account/config"
 	"image_viewer/account/gen"
-	"log"
 	"testing"
 
-	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 	"github.com/samber/do"
 	"github.com/stretchr/testify/assert"
 )
 
-func beforeEach() {
-	godotenv.Load("../.env")
-
-	injector := do.New()
-
-	do.Provide(injector, config.TestDbConnection)
-
-	dbConn := do.MustInvoke[*config.DbConn](injector)
-
-	// Insert initial data
-	_, err := dbConn.Exec(`
-        INSERT INTO app_user (id, name, email) VALUES (1, 'testuser', 'testuser@example.com');
-        INSERT INTO app_team (id, name) VALUES (1, 'testteam');
-    `)
-	if err != nil {
-		log.Fatalf("Failed to insert initial data: %v", err)
-	}
-
-	// Clean up
-	dbConn.Close()
-
-}
-
-func afterEach() {
-	injector := do.New()
-
-	do.Provide(injector, config.TestDbConnection)
-
-	dbConn := do.MustInvoke[*config.DbConn](injector)
-
-	var err error
-	// Clean up: Delete the inserted data
-	_, err = dbConn.Exec(`
-			DELETE FROM app_user;
-			DELETE FROM app_team;
-	`)
-
-	if err != nil {
-		log.Fatalf("Failed to delete test data: %v", err)
-	}
-
-	// Clean up
-	dbConn.Close()
-
-}
-
 // 正常系テスト
 func TestPositive(t *testing.T) {
 	t.Run("正常系01 ID:1", func(t *testing.T) {
-		beforeEach()      // テスト前処理
-		defer afterEach() // テスト後処理
+		config.BeforeEachForUnitTest()      // テスト前処理
+		defer config.AfterEachForUnitTest() // テスト後処理
 
 		// DIコンテナ内の依存関係を設定
 		injector := do.New()
@@ -80,8 +32,8 @@ func TestPositive(t *testing.T) {
 	})
 
 	t.Run("異常系01 存在しないID", func(t *testing.T) {
-		beforeEach()      // テスト前処理
-		defer afterEach() // テスト後処理
+		config.BeforeEachForUnitTest()      // テスト前処理
+		defer config.AfterEachForUnitTest() // テスト後処理
 
 		// DIコンテナ内の依存関係を設定
 		injector := do.New()
@@ -91,7 +43,7 @@ func TestPositive(t *testing.T) {
 		ctx := context.Background()
 		q := gen.New(dbConn)
 		repo := NewUserRepository(q)
-		a, _ := repo.GetUserById(ctx, 2)
+		a, _ := repo.GetUserById(ctx, 999)
 
 		assert.Equal(t, "", a.Name, "The user's Name should be 'nil'")
 		assert.Equal(t, "", a.Email, "The user's Email should be 'nil'")

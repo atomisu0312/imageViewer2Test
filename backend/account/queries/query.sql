@@ -4,6 +4,12 @@ SELECT *
 FROM app_user 
 WHERE id = $1;
 
+-- name: FindTeamByID :one
+-- FindTeamByID ...
+SELECT * 
+FROM app_team
+WHERE id = $1;
+
 -- name: InsertUser :one
 -- InsertUser ...
 INSERT INTO app_user (name, email)

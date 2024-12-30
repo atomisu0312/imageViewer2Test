@@ -10,7 +10,29 @@ import (
 	"database/sql"
 )
 
-const FindUserByID = `-- name: FindUserByID :one
+const findTeamByID = `-- name: FindTeamByID :one
+SELECT id, name, dataowner, regist_date, enable_start_date, enable_end_date, version 
+FROM app_team
+WHERE id = $1
+`
+
+// FindTeamByID ...
+func (q *Queries) FindTeamByID(ctx context.Context, id int64) (AppTeam, error) {
+	row := q.db.QueryRowContext(ctx, findTeamByID, id)
+	var i AppTeam
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Dataowner,
+		&i.RegistDate,
+		&i.EnableStartDate,
+		&i.EnableEndDate,
+		&i.Version,
+	)
+	return i, err
+}
+
+const findUserByID = `-- name: FindUserByID :one
 SELECT id, name, email, dataowner, regist_date, enable_start_date, enable_end_date, version 
 FROM app_user 
 WHERE id = $1
@@ -18,7 +40,7 @@ WHERE id = $1
 
 // FindUserByID ...
 func (q *Queries) FindUserByID(ctx context.Context, id int64) (AppUser, error) {
-	row := q.db.QueryRowContext(ctx, FindUserByID, id)
+	row := q.db.QueryRowContext(ctx, findUserByID, id)
 	var i AppUser
 	err := row.Scan(
 		&i.ID,
