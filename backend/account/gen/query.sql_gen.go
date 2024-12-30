@@ -7,6 +7,7 @@ package gen
 
 import (
 	"context"
+	"database/sql"
 )
 
 const findUserById = `-- name: FindUserById :one
@@ -18,6 +19,210 @@ WHERE id = $1
 // FindUserById ...
 func (q *Queries) FindUserById(ctx context.Context, id int64) (AppUser, error) {
 	row := q.db.QueryRowContext(ctx, findUserById, id)
+	var i AppUser
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Email,
+		&i.Dataowner,
+		&i.RegistDate,
+		&i.EnableStartDate,
+		&i.EnableEndDate,
+		&i.Version,
+	)
+	return i, err
+}
+
+const getAllocationByUserIdAndTeamId = `-- name: GetAllocationByUserIdAndTeamId :one
+SELECT user_id, team_id, read_level, write_level, is_admin, permission_allocation.id, permission_allocation.dataowner, permission_allocation.regist_date, permission_allocation.enable_start_date, permission_allocation.enable_end_date, permission_allocation.version, app_user.id, app_user.name, email, app_user.dataowner, app_user.regist_date, app_user.enable_start_date, app_user.enable_end_date, app_user.version, app_team.id, app_team.name, app_team.dataowner, app_team.regist_date, app_team.enable_start_date, app_team.enable_end_date, app_team.version
+FROM permission_allocation
+INNER JOIN app_user ON permission_allocation.user_id = app_user.id
+INNER JOIN app_team ON permission_allocation.team_id = app_team.id
+WHERE user_id = $1
+AND team_id = $2
+`
+
+type GetAllocationByUserIdAndTeamIdParams struct {
+	UserID int64 `db:"user_id" json:"userId"`
+	TeamID int64 `db:"team_id" json:"teamId"`
+}
+
+type GetAllocationByUserIdAndTeamIdRow struct {
+	UserID            int64          `db:"user_id" json:"userId"`
+	TeamID            int64          `db:"team_id" json:"teamId"`
+	ReadLevel         int64          `db:"read_level" json:"readLevel"`
+	WriteLevel        int64          `db:"write_level" json:"writeLevel"`
+	IsAdmin           bool           `db:"is_admin" json:"isAdmin"`
+	ID                int64          `db:"id" json:"id"`
+	Dataowner         sql.NullString `db:"dataowner" json:"dataowner"`
+	RegistDate        sql.NullTime   `db:"regist_date" json:"registDate"`
+	EnableStartDate   sql.NullTime   `db:"enable_start_date" json:"enableStartDate"`
+	EnableEndDate     sql.NullTime   `db:"enable_end_date" json:"enableEndDate"`
+	Version           sql.NullInt64  `db:"version" json:"version"`
+	ID_2              int64          `db:"id_2" json:"id2"`
+	Name              string         `db:"name" json:"name"`
+	Email             string         `db:"email" json:"email"`
+	Dataowner_2       sql.NullString `db:"dataowner_2" json:"dataowner2"`
+	RegistDate_2      sql.NullTime   `db:"regist_date_2" json:"registDate2"`
+	EnableStartDate_2 sql.NullTime   `db:"enable_start_date_2" json:"enableStartDate2"`
+	EnableEndDate_2   sql.NullTime   `db:"enable_end_date_2" json:"enableEndDate2"`
+	Version_2         sql.NullInt64  `db:"version_2" json:"version2"`
+	ID_3              int64          `db:"id_3" json:"id3"`
+	Name_2            string         `db:"name_2" json:"name2"`
+	Dataowner_3       sql.NullString `db:"dataowner_3" json:"dataowner3"`
+	RegistDate_3      sql.NullTime   `db:"regist_date_3" json:"registDate3"`
+	EnableStartDate_3 sql.NullTime   `db:"enable_start_date_3" json:"enableStartDate3"`
+	EnableEndDate_3   sql.NullTime   `db:"enable_end_date_3" json:"enableEndDate3"`
+	Version_3         sql.NullInt64  `db:"version_3" json:"version3"`
+}
+
+// GetAllocationByUserIdAndTeamId ...
+func (q *Queries) GetAllocationByUserIdAndTeamId(ctx context.Context, arg GetAllocationByUserIdAndTeamIdParams) (GetAllocationByUserIdAndTeamIdRow, error) {
+	row := q.db.QueryRowContext(ctx, getAllocationByUserIdAndTeamId, arg.UserID, arg.TeamID)
+	var i GetAllocationByUserIdAndTeamIdRow
+	err := row.Scan(
+		&i.UserID,
+		&i.TeamID,
+		&i.ReadLevel,
+		&i.WriteLevel,
+		&i.IsAdmin,
+		&i.ID,
+		&i.Dataowner,
+		&i.RegistDate,
+		&i.EnableStartDate,
+		&i.EnableEndDate,
+		&i.Version,
+		&i.ID_2,
+		&i.Name,
+		&i.Email,
+		&i.Dataowner_2,
+		&i.RegistDate_2,
+		&i.EnableStartDate_2,
+		&i.EnableEndDate_2,
+		&i.Version_2,
+		&i.ID_3,
+		&i.Name_2,
+		&i.Dataowner_3,
+		&i.RegistDate_3,
+		&i.EnableStartDate_3,
+		&i.EnableEndDate_3,
+		&i.Version_3,
+	)
+	return i, err
+}
+
+const getAllocationJoinedById = `-- name: GetAllocationJoinedById :one
+SELECT user_id, team_id, read_level, write_level, is_admin, permission_allocation.id, permission_allocation.dataowner, permission_allocation.regist_date, permission_allocation.enable_start_date, permission_allocation.enable_end_date, permission_allocation.version, app_user.id, app_user.name, email, app_user.dataowner, app_user.regist_date, app_user.enable_start_date, app_user.enable_end_date, app_user.version, app_team.id, app_team.name, app_team.dataowner, app_team.regist_date, app_team.enable_start_date, app_team.enable_end_date, app_team.version
+FROM permission_allocation
+INNER JOIN app_user ON permission_allocation.user_id = app_user.id
+INNER JOIN app_team ON permission_allocation.team_id = app_team.id
+WHERE permission_allocation.id = $1
+`
+
+type GetAllocationJoinedByIdRow struct {
+	UserID            int64          `db:"user_id" json:"userId"`
+	TeamID            int64          `db:"team_id" json:"teamId"`
+	ReadLevel         int64          `db:"read_level" json:"readLevel"`
+	WriteLevel        int64          `db:"write_level" json:"writeLevel"`
+	IsAdmin           bool           `db:"is_admin" json:"isAdmin"`
+	ID                int64          `db:"id" json:"id"`
+	Dataowner         sql.NullString `db:"dataowner" json:"dataowner"`
+	RegistDate        sql.NullTime   `db:"regist_date" json:"registDate"`
+	EnableStartDate   sql.NullTime   `db:"enable_start_date" json:"enableStartDate"`
+	EnableEndDate     sql.NullTime   `db:"enable_end_date" json:"enableEndDate"`
+	Version           sql.NullInt64  `db:"version" json:"version"`
+	ID_2              int64          `db:"id_2" json:"id2"`
+	Name              string         `db:"name" json:"name"`
+	Email             string         `db:"email" json:"email"`
+	Dataowner_2       sql.NullString `db:"dataowner_2" json:"dataowner2"`
+	RegistDate_2      sql.NullTime   `db:"regist_date_2" json:"registDate2"`
+	EnableStartDate_2 sql.NullTime   `db:"enable_start_date_2" json:"enableStartDate2"`
+	EnableEndDate_2   sql.NullTime   `db:"enable_end_date_2" json:"enableEndDate2"`
+	Version_2         sql.NullInt64  `db:"version_2" json:"version2"`
+	ID_3              int64          `db:"id_3" json:"id3"`
+	Name_2            string         `db:"name_2" json:"name2"`
+	Dataowner_3       sql.NullString `db:"dataowner_3" json:"dataowner3"`
+	RegistDate_3      sql.NullTime   `db:"regist_date_3" json:"registDate3"`
+	EnableStartDate_3 sql.NullTime   `db:"enable_start_date_3" json:"enableStartDate3"`
+	EnableEndDate_3   sql.NullTime   `db:"enable_end_date_3" json:"enableEndDate3"`
+	Version_3         sql.NullInt64  `db:"version_3" json:"version3"`
+}
+
+// GetAllocationJoinedById ...
+func (q *Queries) GetAllocationJoinedById(ctx context.Context, id int64) (GetAllocationJoinedByIdRow, error) {
+	row := q.db.QueryRowContext(ctx, getAllocationJoinedById, id)
+	var i GetAllocationJoinedByIdRow
+	err := row.Scan(
+		&i.UserID,
+		&i.TeamID,
+		&i.ReadLevel,
+		&i.WriteLevel,
+		&i.IsAdmin,
+		&i.ID,
+		&i.Dataowner,
+		&i.RegistDate,
+		&i.EnableStartDate,
+		&i.EnableEndDate,
+		&i.Version,
+		&i.ID_2,
+		&i.Name,
+		&i.Email,
+		&i.Dataowner_2,
+		&i.RegistDate_2,
+		&i.EnableStartDate_2,
+		&i.EnableEndDate_2,
+		&i.Version_2,
+		&i.ID_3,
+		&i.Name_2,
+		&i.Dataowner_3,
+		&i.RegistDate_3,
+		&i.EnableStartDate_3,
+		&i.EnableEndDate_3,
+		&i.Version_3,
+	)
+	return i, err
+}
+
+const getAllocationOnlyById = `-- name: GetAllocationOnlyById :one
+SELECT user_id, team_id, read_level, write_level, is_admin, id, dataowner, regist_date, enable_start_date, enable_end_date, version
+FROM permission_allocation
+WHERE permission_allocation.id = $1
+`
+
+// GetAllocationOnlyById ...
+func (q *Queries) GetAllocationOnlyById(ctx context.Context, id int64) (PermissionAllocation, error) {
+	row := q.db.QueryRowContext(ctx, getAllocationOnlyById, id)
+	var i PermissionAllocation
+	err := row.Scan(
+		&i.UserID,
+		&i.TeamID,
+		&i.ReadLevel,
+		&i.WriteLevel,
+		&i.IsAdmin,
+		&i.ID,
+		&i.Dataowner,
+		&i.RegistDate,
+		&i.EnableStartDate,
+		&i.EnableEndDate,
+		&i.Version,
+	)
+	return i, err
+}
+
+const insertUser = `-- name: InsertUser :one
+INSERT INTO app_user (name, email)
+VALUES ($1, $2)
+RETURNING id, name, email, dataowner, regist_date, enable_start_date, enable_end_date, version
+`
+
+type InsertUserParams struct {
+	Name  string `db:"name" json:"name"`
+	Email string `db:"email" json:"email"`
+}
+
+// InsertUser ...
+func (q *Queries) InsertUser(ctx context.Context, arg InsertUserParams) (AppUser, error) {
+	row := q.db.QueryRowContext(ctx, insertUser, arg.Name, arg.Email)
 	var i AppUser
 	err := row.Scan(
 		&i.ID,
