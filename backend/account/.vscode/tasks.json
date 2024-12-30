@@ -7,6 +7,21 @@
       "label": "echoサーバーの起動",
       "type": "shell",
       "command": "go run main.go",
-    }
+    },
+    {
+      "label": "リポジトリのテスト",
+      "type": "shell",
+      "command": "go test ./repository",
+    },
+    {
+      "label": "ユースケースのテスト",
+      "type": "shell",
+      "command": "go test ./usecase",
+    },
+    {
+      "label": "ハンドラーのテスト",
+      "type": "shell",
+      "command": "go test ./handler",
+    },
   ]
 }

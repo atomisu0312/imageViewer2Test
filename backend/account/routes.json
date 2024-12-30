@@ -1,0 +1,7 @@
+[
+  {
+    "method": "GET",
+    "path": "/api/account/users/:id",
+    "name": "image_viewer/account/handler.(*accountHandlerImpl).getUserById-fm"
+  }
+]
