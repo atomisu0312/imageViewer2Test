@@ -19,7 +19,7 @@ type AccountUseCase interface {
 	UseCase
 	// FindUserByIDはUserをIDで検索する
 	// {"Name": "testuser", "Email": "sample@gmail.com"}
-	FindUserByID(ctx context.Context, userId int64) (map[string]interface{}, error)
+	FindUserByID(ctx context.Context, userID int64) (map[string]interface{}, error)
 }
 
 // NewAccountUseCase は新しい UseCase インスタンスを作成します
@@ -33,13 +33,13 @@ func (useCase *accountUseCaseImpl) emptyFunc() {}
 
 // FindUserByIDはUserをIDで検索する
 // {"Name": "testuser", "Email": "sample@gmail.com"}
-func (useCase *accountUseCaseImpl) FindUserByID(ctx context.Context, userId int64) (map[string]interface{}, error) {
+func (useCase *accountUseCaseImpl) FindUserByID(ctx context.Context, userID int64) (map[string]interface{}, error) {
 	var result gen.AppUser
 	tr := transaction.NewTx(useCase.dbConn.DB)
 	err := tr.ExecNonTx(ctx, func(q *gen.Queries) error {
 		repo := repository.NewUserRepository(q)
 
-		workout, err := repo.GetUserById(ctx, userId)
+		workout, err := repo.GetUserById(ctx, userID)
 
 		if err != nil {
 			return fmt.Errorf("error create workout %w", err)

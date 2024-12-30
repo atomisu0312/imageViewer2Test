@@ -34,6 +34,10 @@ func beforeEach() {
 	if err != nil {
 		log.Fatalf("Failed to insert initial data: %v", err)
 	}
+
+	// Clean up
+	dbConn.Close()
+
 }
 
 func afterEach() {
@@ -59,7 +63,7 @@ func afterEach() {
 
 }
 
-var (
+const (
 	userJSON = `{"Email":"testuser@example.com","Name":"testuser"}`
 )
 

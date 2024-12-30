@@ -31,6 +31,9 @@ func beforeEach() {
 	if err != nil {
 		log.Fatalf("Failed to insert initial data: %v", err)
 	}
+	// Clean up
+	dbConn.Close()
+
 }
 
 func afterEach() {
