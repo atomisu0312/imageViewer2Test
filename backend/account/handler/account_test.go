@@ -1,8 +1,10 @@
-package handler
+package handler_test
 
 import (
+	"fmt"
+	"image_viewer/account/app"
 	"image_viewer/account/config"
-	"image_viewer/account/usecase"
+	"image_viewer/account/handler"
 	"log"
 	"net/http"
 	"net/http/httptest"
@@ -58,37 +60,37 @@ func afterEach() {
 }
 
 var (
-	userJSON = `{"name":"Jon Snow","email":"jon@labstack.com"}`
+	userJSON = `{"Email":"testuser@example.com","Name":"testuser"}`
 )
 
 func TestGetUser(t *testing.T) {
 
-	t.Run("正常系01 パラメーター(names []string)のサイズ1", func(t *testing.T) {
+	t.Run("getUserByIdのテスト", func(t *testing.T) {
 		beforeEach()      // テスト前処理
 		defer afterEach() // テスト後処理
 
 		// DIコンテナ内の依存関係を設定
-		injector := do.New()
-		do.Provide(injector, config.TestDbConnection)
-		do.Provide(injector, usecase.NewAccountUseCase)
-		do.Provide(injector, NewAccountHandler)
-		// ハンドラをコンテナから取得
-		accountHandler := do.MustInvoke[AccountHandler](injector)
+		injector := app.SetupDIContainer()
+		do.Override(injector, config.TestDbConnection)
 
-		// Setup
+		// ハンドラをコンテナから取得
+		accountHandler := do.MustInvoke[handler.AccountHandler](injector)
+
+		// アプリケーションおよびHTTPリクエストのセットアップ
 		e := echo.New()
 		req := httptest.NewRequest(http.MethodGet, "/", nil)
 		rec := httptest.NewRecorder()
 		c := e.NewContext(req, rec)
 
-		c.SetPath("/account/users/:id")
+		// パスに関する設定
+		c.SetPath(fmt.Sprintf("%s%s", handler.APIGroupName, handler.PathGetUserByID))
 		c.SetParamNames("id")
 		c.SetParamValues("1")
 
 		// Assertions
-		if assert.NoError(t, accountHandler.getUserById(c)) {
+		if assert.NoError(t, accountHandler.GetUserByID(c)) {
 			assert.Equal(t, http.StatusOK, rec.Code)
-			assert.Equal(t, userJSON, rec.Body.String())
+			assert.JSONEq(t, userJSON, rec.Body.String())
 		}
 	})
 }

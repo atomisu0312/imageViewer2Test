@@ -1,8 +1,10 @@
-package usecase
+package usecase_test
 
 import (
 	"context"
+	"image_viewer/account/app"
 	"image_viewer/account/config"
+	"image_viewer/account/usecase"
 	"log"
 	"testing"
 
@@ -61,12 +63,11 @@ func TestPositive(t *testing.T) {
 		defer afterEach() // テスト後処理
 
 		// DIコンテナ内の依存関係を設定
-		injector := do.New()
-		do.Provide(injector, config.TestDbConnection)
-		do.Provide(injector, NewAccountUseCase)
+		injector := app.SetupDIContainer()
+		do.Override(injector, config.TestDbConnection)
 
 		// UseCaseのインスタンスを作成
-		accountUseCase := do.MustInvoke[AccountUseCase](injector)
+		accountUseCase := do.MustInvoke[usecase.AccountUseCase](injector)
 
 		// コンテキストを作成
 		ctx := context.Background()
