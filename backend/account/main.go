@@ -1,9 +1,11 @@
 package main
 
 import (
+	"encoding/json"
 	"image_viewer/account/config"
 	"image_viewer/account/handler"
 	"image_viewer/account/usecase"
+	"os"
 
 	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
@@ -19,14 +21,16 @@ func main() {
 	injector := do.New()
 
 	do.Provide(injector, config.NewDbConnection)
-	do.Provide(injector, usecase.NewAppUseCase)
-	do.Provide(injector, handler.NewHelloHandler)
+	do.Provide(injector, usecase.NewAccountUseCase)
+	do.Provide(injector, handler.NewAccountHandler)
 
 	e := echo.New()
-	api := e.Group("/account")
+	api := e.Group("/api")
+	accountHandler := do.MustInvoke[handler.AccountHandler](injector)
+	accountHandler.AddHandler(api)
 
-	helloHandler := do.MustInvoke[handler.HelloHandler](injector)
-	helloHandler.AddHandler(api)
+	data, _ := json.MarshalIndent(e.Routes(), "", "  ")
+	os.WriteFile("routes.json", data, 0644)
 
 	e.Logger.Fatal(e.Start(":1323"))
 }

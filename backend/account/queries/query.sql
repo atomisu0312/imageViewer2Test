@@ -1,5 +1,5 @@
--- name: FindUserById :one
--- FindUserById ...
+-- name: FindUserByID :one
+-- FindUserByID ...
 SELECT * 
 FROM app_user 
 WHERE id = $1;

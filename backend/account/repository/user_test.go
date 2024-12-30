@@ -5,7 +5,6 @@ import (
 	"image_viewer/account/config"
 	"image_viewer/account/gen"
 	"log"
-	"os"
 	"testing"
 
 	"github.com/joho/godotenv"
@@ -14,16 +13,14 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-var dbConn *config.DbConn
-
-func TestMain(m *testing.M) {
+func beforeEach() {
 	godotenv.Load("../.env")
 
 	injector := do.New()
 
 	do.Provide(injector, config.TestDbConnection)
 
-	dbConn = do.MustInvoke[*config.DbConn](injector)
+	dbConn := do.MustInvoke[*config.DbConn](injector)
 
 	// Insert initial data
 	_, err := dbConn.Exec(`
@@ -33,10 +30,16 @@ func TestMain(m *testing.M) {
 	if err != nil {
 		log.Fatalf("Failed to insert initial data: %v", err)
 	}
+}
 
-	// Run tests
-	code := m.Run()
+func afterEach() {
+	injector := do.New()
 
+	do.Provide(injector, config.TestDbConnection)
+
+	dbConn := do.MustInvoke[*config.DbConn](injector)
+
+	var err error
 	// Clean up: Delete the inserted data
 	_, err = dbConn.Exec(`
 			DELETE FROM app_user;
@@ -50,15 +53,24 @@ func TestMain(m *testing.M) {
 	// Clean up
 	dbConn.Close()
 
-	os.Exit(code)
 }
 
-func TestSome(t *testing.T) {
-	ctx := context.Background()
+// 正常系テスト
+func TestPositive(t *testing.T) {
+	t.Run("正常系01 パラメーター(names []string)のサイズ1", func(t *testing.T) {
+		beforeEach()      // テスト前処理
+		defer afterEach() // テスト後処理
 
-	q := gen.New(dbConn)
-	repo := NewAccountRepository(q)
-	a, _ := repo.GetUserById(ctx, 1)
+		// DIコンテナ内の依存関係を設定
+		injector := do.New()
+		do.Provide(injector, config.TestDbConnection)
+		dbConn := do.MustInvoke[*config.DbConn](injector)
 
-	assert.Equal(t, "testuser", a.Name, "The user's name should be 'testuser'")
+		ctx := context.Background()
+		q := gen.New(dbConn)
+		repo := NewUserRepository(q)
+		a, _ := repo.GetUserById(ctx, 1)
+
+		assert.Equal(t, "testuser", a.Name, "The user's name should be 'testuser'")
+	})
 }

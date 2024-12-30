@@ -6,22 +6,27 @@
     {
       "label": "echoサーバーの起動",
       "type": "shell",
-      "command": "go run main.go",
+      "command": "go run main.go -v",
     },
     {
       "label": "リポジトリのテスト",
       "type": "shell",
-      "command": "go test ./repository",
+      "command": "go test ./repository -v",
     },
     {
       "label": "ユースケースのテスト",
       "type": "shell",
-      "command": "go test ./usecase",
+      "command": "go test ./usecase -v",
     },
     {
       "label": "ハンドラーのテスト",
       "type": "shell",
-      "command": "go test ./handler",
+      "command": "go test ./handler -v",
+    },
+    {
+      "label": "【Util】json関連のテスト",
+      "type": "shell",
+      "command": "go test -run ^TestJson$ ./util -v",
     },
   ]
 }

@@ -10,15 +10,15 @@ import (
 	"database/sql"
 )
 
-const findUserById = `-- name: FindUserById :one
+const FindUserByID = `-- name: FindUserByID :one
 SELECT id, name, email, dataowner, regist_date, enable_start_date, enable_end_date, version 
 FROM app_user 
 WHERE id = $1
 `
 
-// FindUserById ...
-func (q *Queries) FindUserById(ctx context.Context, id int64) (AppUser, error) {
-	row := q.db.QueryRowContext(ctx, findUserById, id)
+// FindUserByID ...
+func (q *Queries) FindUserByID(ctx context.Context, id int64) (AppUser, error) {
+	row := q.db.QueryRowContext(ctx, FindUserByID, id)
 	var i AppUser
 	err := row.Scan(
 		&i.ID,
