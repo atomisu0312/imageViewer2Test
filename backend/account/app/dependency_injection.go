@@ -5,6 +5,7 @@ import (
 	"image_viewer/account/handler"
 	"image_viewer/account/usecase"
 
+	_ "github.com/lib/pq" // PostgreSQL ドライバをインポート
 	"github.com/samber/do"
 )
 
