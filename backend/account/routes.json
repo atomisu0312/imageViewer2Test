@@ -2,6 +2,11 @@
   {
     "method": "GET",
     "path": "/api/account/users/:id",
-    "name": "image_viewer/account/handler.(*accountHandlerImpl).GetUserById-fm"
+    "name": "image_viewer/account/handler.(*accountHandlerImpl).GetUserByID-fm"
+  },
+  {
+    "method": "GET",
+    "path": "/api/account/teams/:id",
+    "name": "image_viewer/account/handler.(*accountHandlerImpl).GetTeamByID-fm"
   }
 ]

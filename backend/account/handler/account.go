@@ -15,6 +15,7 @@ import (
 const (
 	APIGroupName    = "/account"
 	PathGetUserByID = "/users/:id"
+	PathGetTeamByID = "/teams/:id"
 )
 
 type accountHandlerImpl struct {
@@ -26,6 +27,7 @@ type accountHandlerImpl struct {
 type AccountHandler interface {
 	Handler
 	GetUserByID(c echo.Context) error
+	GetTeamByID(c echo.Context) error
 }
 
 // NewAccountHandler は、AccountHandler の新しいインスタンスを作成します。
@@ -39,9 +41,10 @@ func NewAccountHandler(i *do.Injector) (AccountHandler, error) {
 func (h *accountHandlerImpl) AddHandler(api *echo.Group) {
 	group := api.Group(APIGroupName)
 	group.GET(PathGetUserByID, h.GetUserByID)
+	group.GET(PathGetTeamByID, h.GetTeamByID)
 }
 
-// GetUserById は、ユーザーIDを指定してユーザー情報を取得するエンドポイントです。
+// GetUserByID は、ユーザーIDを指定してユーザー情報を取得するエンドポイントです。
 func (h *accountHandlerImpl) GetUserByID(c echo.Context) error {
 	ctx := c.Request().Context()
 	userIDStr := c.Param("id")
@@ -57,6 +60,29 @@ func (h *accountHandlerImpl) GetUserByID(c echo.Context) error {
 
 	// ユースケースを用いてユーザー情報を取得
 	result, err := h.userUsecase.FindUserByID(ctx, userID)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "User not found"})
+	}
+
+	return c.JSON(http.StatusOK, result)
+}
+
+// GetTeamByID は、チームIDを指定してチーム情報を取得するエンドポイントです。
+func (h *accountHandlerImpl) GetTeamByID(c echo.Context) error {
+	ctx := c.Request().Context()
+	userIDStr := c.Param("id")
+
+	log.Default().Println("teamIDStr: ", userIDStr)
+
+	// string を int64 に変換
+	userID, err := strconv.ParseInt(userIDStr, 10, 64)
+
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid user ID"})
+	}
+
+	// ユースケースを用いてユーザー情報を取得
+	result, err := h.userUsecase.FindTeamByID(ctx, userID)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": "User not found"})
 	}
