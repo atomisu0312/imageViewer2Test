@@ -2,24 +2,34 @@ package util_test
 
 import (
 	"fmt"
+	"image_viewer/account/util"
 	"log"
 	"testing"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/stretchr/testify/assert"
 )
 
-var hmacSampleSecret = []byte("your-256-bit-secret")
+var (
+	hmacSampleSecretBin = []byte("your-256-bit-secret")
+	hmacSampleSecret    = "your-256-bit-secret"
+	sampleToken         = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmb28iOiJiYXJkIiwibnVtYmVyIjozNH0.57xE3hUbkhgCAGXYvVRtlKNLGl3AM-rDcjmqTtHGsuQ"
+	sampleObj           = map[string]interface{}{
+		"foo":    "bard",
+		"number": float64(34),
+	}
+)
 
 func createTokenSample() (string, error) {
 	// トークンを生成し、クレームを設定
-	token := jwt.NewWithClaims(jwt.SigningMethodHS384, jwt.MapClaims{
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"foo": "bard",
 		"nbf": time.Date(2025, 1, 1, 0, 0, 0, 0, time.UTC).Unix(),
 	})
 
 	// トークンを署名し、文字列として取得
-	tokenString, err := token.SignedString(hmacSampleSecret)
+	tokenString, err := token.SignedString(hmacSampleSecretBin)
 	if err != nil {
 		return "", err
 	}
@@ -32,7 +42,7 @@ func parseTokenSample(tokenString string) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
-		return hmacSampleSecret, nil
+		return hmacSampleSecretBin, nil
 	})
 	if err != nil {
 		log.Fatal(err)
@@ -55,5 +65,20 @@ func TestJwtOfSample(t *testing.T) {
 		}
 		fmt.Println("Generated Token:", token)
 		parseTokenSample(token)
+	})
+}
+
+func TestJwt(t *testing.T) {
+	t.Run("encodeテスト", func(t *testing.T) {
+		keyStr := hmacSampleSecret
+		actual, _ := util.JWTHelper.EncodeJWT(sampleObj, keyStr)
+		log.Println("Generated Token:", actual)
+		assert.Equal(t, sampleToken, actual, "Encoded Token is Wrong")
+	})
+	t.Run("decodeテスト", func(t *testing.T) {
+		keyStr := hmacSampleSecret
+		actual, _ := util.JWTHelper.DecodeJWTWithHMAC(sampleToken, keyStr)
+		log.Println("Encoded Object:", actual)
+		assert.Equal(t, sampleObj, actual, "Decoded Token is Wrong")
 	})
 }

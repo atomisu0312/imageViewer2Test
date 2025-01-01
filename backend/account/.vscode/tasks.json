@@ -39,6 +39,11 @@
       "command": "go test -run ^TestJwtOfSample$ ./util -v",
     },
     {
+      "label": "【Util】JWT関連のテスト(自作メソッドを検証)",
+      "type": "shell",
+      "command": "go test -run ^TestJwt$ ./util -v",
+    },
+    {
       "label": "sqlcによるコードの自動生成",
       "type": "shell",
       "command": "go run github.com/sqlc-dev/sqlc/cmd/sqlc generate",
