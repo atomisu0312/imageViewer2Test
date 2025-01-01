@@ -25,6 +25,15 @@ INNER JOIN app_team ON permission_allocation.team_id = app_team.id
 WHERE user_id = $1
 AND team_id = $2;
 
+-- name: GetAllocationByUserEmailAndTeamId :one
+-- GetAllocationByUserEmailAndTeamId ...
+SELECT *
+FROM permission_allocation
+INNER JOIN app_user ON permission_allocation.user_id = app_user.id
+INNER JOIN app_team ON permission_allocation.team_id = app_team.id
+WHERE app_user.email = $1
+AND team_id = $2;
+
 -- name: GetAllocationJoinedById :one
 -- GetAllocationJoinedById ...
 SELECT *

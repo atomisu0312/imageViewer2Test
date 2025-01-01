@@ -8,5 +8,10 @@
     "method": "GET",
     "path": "/api/account/teams/:id",
     "name": "image_viewer/account/handler.(*accountHandlerImpl).GetTeamByID-fm"
+  },
+  {
+    "method": "GET",
+    "path": "/api/account/allocationsSearch",
+    "name": "image_viewer/account/handler.(*accountHandlerImpl).GetAllocationsSearch-fm"
   }
 ]

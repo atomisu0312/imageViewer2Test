@@ -69,3 +69,33 @@ func TestPositiveForTeam(t *testing.T) {
 		assert.Equal(t, "testteam", result["Name"], "The team's name should be 'testteam'")
 	})
 }
+
+// 正常系テスト
+func TestPositiveForAllocation(t *testing.T) {
+	t.Run("正常系03 チームIDとemail指定でAllocationが取得できることを確認", func(t *testing.T) {
+		config.BeforeEachForUnitTest()      // テスト前処理
+		defer config.AfterEachForUnitTest() // テスト後処理
+
+		// DIコンテナ内の依存関係を設定
+		injector := app.SetupDIContainer()
+		do.Override(injector, config.TestDbConnection)
+
+		// UseCaseのインスタンスを作成
+		accountUseCase := do.MustInvoke[usecase.AccountUseCase](injector)
+
+		// コンテキストを作成
+		ctx := context.Background()
+
+		// ユースケースの実行
+		result, err := accountUseCase.FindAllocationByTeamIDAndEmail(ctx, "testuser@example.com", 1)
+
+		if err != nil {
+			log.Fatalln("Error creating workout transaction:", err)
+		}
+
+		// 結果を表示
+		assert.Equal(t, int64(3), result["WriteLevel"], "The write level should be 3")
+		assert.Equal(t, int64(3), result["ReadLevel"], "The read level should be 3")
+		assert.Equal(t, int64(1), result["ID"], "The ID should be 1")
+	})
+}

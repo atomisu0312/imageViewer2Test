@@ -4,6 +4,20 @@ import (
 	"reflect"
 )
 
+// CopyStructFields は src から dst へフィールドをコピーします
+func CopyStructFields(src, dst interface{}) {
+	srcVal := reflect.ValueOf(src)
+	dstVal := reflect.ValueOf(dst).Elem()
+
+	for i := 0; i < srcVal.NumField(); i++ {
+		field := srcVal.Type().Field(i)
+		dstField := dstVal.FieldByName(field.Name)
+		if dstField.IsValid() && dstField.CanSet() {
+			dstField.Set(srcVal.Field(i))
+		}
+	}
+}
+
 // StructToMap は構造体をマップに変換する関数
 // obj: 変換したい構造体
 // return: 変換されたマップ
