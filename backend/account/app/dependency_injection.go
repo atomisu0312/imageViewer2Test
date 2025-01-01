@@ -19,9 +19,11 @@ func SetupDIContainer() *do.Injector {
 
 	// ユースケース
 	do.Provide(injector, usecase.NewAccountUseCase)
+	do.Provide(injector, usecase.NewAuthUseCase)
 
 	// ハンドラー
 	do.Provide(injector, handler.NewAccountHandler)
+	do.Provide(injector, handler.NewAuthHandler)
 
 	return injector
 }

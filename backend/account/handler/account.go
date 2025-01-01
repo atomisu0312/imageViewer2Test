@@ -16,7 +16,7 @@ const (
 	APIGroupName            = "/account"
 	PathGetUserByID         = "/users/:id"
 	PathGetTeamByID         = "/teams/:id"
-	PathGetAllocationSearch = "/allocationsSearch"
+	PathGetAllocationSearch = "/allocationSearch"
 )
 
 type accountHandlerImpl struct {

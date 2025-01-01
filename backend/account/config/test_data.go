@@ -18,6 +18,9 @@ func BeforeEachForUnitTest() {
 
 	// Insert initial data
 	_, err := dbConn.Exec(`
+				TRUNCATE TABLE permission_allocation RESTART IDENTITY;
+				TRUNCATE TABLE app_user RESTART IDENTITY CASCADE;
+				TRUNCATE TABLE app_team RESTART IDENTITY CASCADE;
         INSERT INTO app_user (id, name, email) VALUES (1, 'testuser', 'testuser@example.com');
         INSERT INTO app_team (id, name) VALUES (1, 'testteam');
 				INSERT INTO permission_allocation (user_id, team_id, is_admin, read_level, write_level) VALUES (1, 1, TRUE, 3, 3);
