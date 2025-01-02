@@ -37,14 +37,14 @@ func TestAuthPassCode(t *testing.T) {
 		ctx := context.Background()
 
 		// ユースケースの実行
-		code, err := testee.ExportPassCodeByTeamId(ctx, 1)
+		code, err := testee.ExportPassCodeByTeamID(ctx, 1)
 
 		if err != nil {
 			log.Fatalln("Error creating workout transaction:", err)
 		}
 
 		// Tokenからチーム情報を復元
-		decoded, err := testee.DecodePassCodeByTeamId(ctx, code)
+		decoded, err := testee.DecodePassCodeByTeamID(ctx, code)
 
 		log.Default().Println("devodedInfo", decoded)
 
@@ -70,7 +70,7 @@ func TestAuthPassCode(t *testing.T) {
 		ctx := context.Background()
 
 		// ユースケースの実行
-		code, _ := testee.ExportPassCodeByTeamId(ctx, testeeId)
+		code, _ := testee.ExportPassCodeByTeamID(ctx, testeeId)
 
 		// 空文字が返却されていることを確認
 		assert.Equal(t, "", code, "Code Should be Empty")

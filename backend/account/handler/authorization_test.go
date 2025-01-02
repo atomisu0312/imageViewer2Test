@@ -18,6 +18,7 @@ import (
 
 const ()
 
+// TestAuth は、認証関連のハンドラーのテストを行います。
 func TestAuth(t *testing.T) {
 
 	t.Run("ShowPassCodeのテスト 不正なIDの場合", func(t *testing.T) {
@@ -83,7 +84,12 @@ func TestAuth(t *testing.T) {
 			var resultMap map[string]interface{}
 			_ = json.Unmarshal([]byte(result), &resultMap)
 
+			// ステータスコードと結果の確認
 			assert.Equal(t, http.StatusOK, rec.Code)
+
+			// 結果の確認
+			//	- result: success
+			//	- passcode: パスコードが空文字でないこと
 			assert.Equal(t, "success", resultMap["result"].(string), "result should be success")
 			assert.True(t, len(resultMap["passcode"].(string)) > 0, "passcode should not be empty")
 		}

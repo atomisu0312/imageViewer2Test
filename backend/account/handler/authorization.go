@@ -12,8 +12,8 @@ import (
 
 // 以下、他のパッケージから参照できる定数を定義する
 const (
-	APIGroupNameForAuth = "/account"
-	PathShowPassCode    = "/showPassCode/:teamid"
+	APIGroupNameForAuth = "/myauth"
+	PathShowPassCode    = "/passcode/:teamid"
 )
 
 type authHandlerImpl struct {
@@ -55,7 +55,7 @@ func (h *authHandlerImpl) ShowTeamPassCodeByID(c echo.Context) error {
 	}
 
 	// ユースケースを用いてユーザー情報を取得
-	code, err := h.authUsecase.ExportPassCodeByTeamId(ctx, teamID)
+	code, err := h.authUsecase.ExportPassCodeByTeamID(ctx, teamID)
 
 	// resultの初期値値を定義
 	result := make(map[string]interface{})

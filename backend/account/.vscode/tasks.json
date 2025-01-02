@@ -48,5 +48,10 @@
       "type": "shell",
       "command": "go run github.com/sqlc-dev/sqlc/cmd/sqlc generate",
     },
+    {
+      "label": "テスト全実行",
+      "type": "shell",
+      "command": "go test ./...",
+    },
   ]
 }

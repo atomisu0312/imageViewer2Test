@@ -25,8 +25,8 @@ type AuthUseCase interface {
 	UseCase
 	// FindUserByIDはUserをIDで検索する
 	// {"Name": "testuser", "Email": "sample@gmail.com"}
-	ExportPassCodeByTeamId(ctx context.Context, teamId int64) (string, error)
-	DecodePassCodeByTeamId(ctx context.Context, passCode string) (map[string]interface{}, error)
+	ExportPassCodeByTeamID(ctx context.Context, teamID int64) (string, error)
+	DecodePassCodeByTeamID(ctx context.Context, passCode string) (map[string]interface{}, error)
 }
 
 // NewAuthUseCase は新しい UseCase インスタンスを作成します
@@ -38,7 +38,8 @@ func NewAuthUseCase(i *do.Injector) (AuthUseCase, error) {
 
 func (useCase *authUseCaseImpl) emptyFunc() {}
 
-func (useCase *authUseCaseImpl) ExportPassCodeByTeamId(ctx context.Context, teamID int64) (string, error) {
+// ExportPassCodeByTeamId はチームIDからパスコードをエクスポートする
+func (useCase *authUseCaseImpl) ExportPassCodeByTeamID(ctx context.Context, teamID int64) (string, error) {
 	var result gen.AppTeam
 	tr := transaction.NewTx(useCase.dbConn.DB)
 	err := tr.ExecNonTx(ctx, func(q *gen.Queries) error {
@@ -72,6 +73,7 @@ func (useCase *authUseCaseImpl) ExportPassCodeByTeamId(ctx context.Context, team
 	return util.StringHelper.InterleaveString(token, AuthInterleaveDim), err
 }
 
-func (useCase *authUseCaseImpl) DecodePassCodeByTeamId(ctx context.Context, passCode string) (map[string]interface{}, error) {
+// DecodePassCodeByTeamID はチームIDからパスコードをデコードする
+func (useCase *authUseCaseImpl) DecodePassCodeByTeamID(ctx context.Context, passCode string) (map[string]interface{}, error) {
 	return util.JWTHelper.DecodeJWTWithHMAC(util.StringHelper.UntiInterleaveString(passCode, AuthInterleaveDim), AuthSecret)
 }

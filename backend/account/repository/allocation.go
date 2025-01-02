@@ -6,6 +6,7 @@ import (
 	"image_viewer/account/util"
 )
 
+// AllocationRepository はPermissionAllocationのリポジトリです
 type AllocationRepository interface {
 	GetAllocationByUserEmailAndTeamID(ctx context.Context, email string, teamId int64) (gen.PermissionAllocation, error)
 }
