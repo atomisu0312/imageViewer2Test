@@ -41,7 +41,7 @@ func (useCase *accountUseCaseImpl) FindUserByID(ctx context.Context, userId int6
 	err := tr.ExecNonTx(ctx, func(q *gen.Queries) error {
 		repo := repository.NewUserRepository(q)
 
-		workout, err := repo.GetUserById(ctx, userId)
+		workout, err := repo.GetUserByID(ctx, userId)
 
 		if err != nil {
 			return fmt.Errorf("error create workout %w", err)

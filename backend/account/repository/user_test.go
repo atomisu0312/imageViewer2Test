@@ -28,7 +28,7 @@ func TestPositive(t *testing.T) {
 		ctx := context.Background()
 		q := gen.New(dbConn)
 		repo := repository.NewUserRepository(q)
-		a, _ := repo.GetUserById(ctx, 1)
+		a, _ := repo.GetUserByID(ctx, 1)
 
 		assert.Equal(t, "testuser", a.Name, "The user's name should be 'testuser'")
 		assert.Equal(t, "testuser@example.com", a.Email, "The user's email should be 'testuser@example.com'")
@@ -46,7 +46,7 @@ func TestPositive(t *testing.T) {
 		ctx := context.Background()
 		q := gen.New(dbConn)
 		repo := repository.NewUserRepository(q)
-		a, _ := repo.GetUserById(ctx, 999)
+		a, _ := repo.GetUserByID(ctx, 999)
 
 		assert.Equal(t, "", a.Name, "The user's Name should be 'nil'")
 		assert.Equal(t, "", a.Email, "The user's Email should be 'nil'")
@@ -90,7 +90,7 @@ func TestPositive(t *testing.T) {
 		//　データが挿入されているかどうかを確認
 		q := gen.New(dbConn.DB)
 		repo := repository.NewUserRepository(q)
-		searchResult, err := repo.GetUserById(ctx, result.ID)
+		searchResult, err := repo.GetUserByID(ctx, result.ID)
 		if err != nil {
 			t.Fatalf("Failed to get user by ID: %v", err)
 		}

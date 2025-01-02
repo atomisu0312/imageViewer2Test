@@ -6,7 +6,7 @@ import (
 )
 
 type UserRepository interface {
-	GetUserById(ctx context.Context, id int64) (gen.AppUser, error)
+	GetUserByID(ctx context.Context, id int64) (gen.AppUser, error)
 	InsertUserWithNameAndEmail(ctx context.Context, name string, email string) (gen.AppUser, error)
 }
 
@@ -20,7 +20,7 @@ func NewUserRepository(queries *gen.Queries) UserRepository {
 }
 
 // GetUserById はID指定でユーザを持ってくる関数
-func (repo *userRepositoryImpl) GetUserById(ctx context.Context, userId int64) (gen.AppUser, error) {
+func (repo *userRepositoryImpl) GetUserByID(ctx context.Context, userId int64) (gen.AppUser, error) {
 	return repo.queries.FindUserByID(ctx, userId)
 }
 
