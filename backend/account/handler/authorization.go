@@ -12,8 +12,9 @@ import (
 
 // 以下、他のパッケージから参照できる定数を定義する
 const (
-	APIGroupNameForAuth = "/myauth"
-	PathShowPassCode    = "/passcode/:teamid"
+	APIGroupNameForAuth    = "/myauth"
+	PathShowPassCode       = "/passcode/:teamid"
+	PathWelcomeNewUserTeam = "/welcome/new/userteam"
 )
 
 type authHandlerImpl struct {
@@ -25,6 +26,7 @@ type authHandlerImpl struct {
 type AuthHandler interface {
 	Handler
 	ShowTeamPassCodeByID(c echo.Context) error
+	WelcomeNewUserTeam(c echo.Context) error
 }
 
 // NewAuthHandler NewAuthHandler の新しいインスタンスを作成します。
@@ -38,6 +40,8 @@ func NewAuthHandler(i *do.Injector) (AuthHandler, error) {
 func (h *authHandlerImpl) AddHandler(api *echo.Group) {
 	group := api.Group(APIGroupNameForAuth)
 	group.GET(PathShowPassCode, h.ShowTeamPassCodeByID)
+	group.POST(PathWelcomeNewUserTeam, h.WelcomeNewUserTeam)
+
 }
 
 // ShowTeamPassCodeByID は、チームIDを指定してチームのパスコードを取得するエンドポイントです。
@@ -67,6 +71,31 @@ func (h *authHandlerImpl) ShowTeamPassCodeByID(c echo.Context) error {
 		result["result"] = "success"
 	default:
 		result["result"] = "failed"
+	}
+
+	return c.JSON(http.StatusOK, result)
+}
+
+// WelcomeNewUserTeamVM は、新しいユーザーチームを作成するためのVMです。
+type WelcomeNewUserTeamVM struct {
+	TeamName string `json:"team_name"`
+	UserName string `json:"user_name"`
+	Email    string `json:"email"`
+}
+
+// WelcomeNewUserTeam は、新しいユーザーチームを作成するエンドポイントです。
+func (h *authHandlerImpl) WelcomeNewUserTeam(c echo.Context) error {
+	ctx := c.Request().Context()
+	vm := new(WelcomeNewUserTeamVM)
+
+	if err := c.Bind(vm); err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Invalid JSON Parsing"})
+	}
+
+	result, err := h.authUsecase.MakeNewTeamAndUser(ctx, vm.TeamName, vm.UserName, vm.Email)
+
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"error": err.Error()})
 	}
 
 	return c.JSON(http.StatusOK, result)

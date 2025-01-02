@@ -1,8 +1,13 @@
 [
   {
     "method": "GET",
-    "path": "/api/account/allocationsSearch",
-    "name": "image_viewer/account/handler.(*accountHandlerImpl).GetAllocationsSearch-fm"
+    "path": "/api/myauth/passcode/:teamid",
+    "name": "image_viewer/account/handler.(*authHandlerImpl).ShowTeamPassCodeByID-fm"
+  },
+  {
+    "method": "POST",
+    "path": "/api/myauth/welcome/new/userteam",
+    "name": "image_viewer/account/handler.(*authHandlerImpl).WelcomeNewUserTeam-fm"
   },
   {
     "method": "GET",
@@ -13,5 +18,10 @@
     "method": "GET",
     "path": "/api/account/teams/:id",
     "name": "image_viewer/account/handler.(*accountHandlerImpl).GetTeamByID-fm"
+  },
+  {
+    "method": "GET",
+    "path": "/api/account/allocationSearch",
+    "name": "image_viewer/account/handler.(*accountHandlerImpl).GetAllocationsSearch-fm"
   }
 ]

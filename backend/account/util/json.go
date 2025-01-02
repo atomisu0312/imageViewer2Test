@@ -1,6 +1,8 @@
 package util
 
 import (
+	"encoding/json"
+	"fmt"
 	"reflect"
 )
 
@@ -51,4 +53,17 @@ func FilterMapFields(jsonObj map[string]interface{}, fieldsToKeep ...string) map
 	}
 
 	return filtered
+}
+
+// JsonToMap はJson文字列をMapに変換する関数
+func JsonToMap(jsonObj string) (map[string]interface{}, error) {
+
+	var submitData map[string]interface{}
+	submitJSON := `{"team_name":"testteam2","user_name":"testuser2","email":"test2@gmail.com"}`
+
+	if err := json.Unmarshal([]byte(submitJSON), &submitData); err != nil {
+		return nil, fmt.Errorf("error create workout %w", err)
+	}
+
+	return submitData, nil
 }
