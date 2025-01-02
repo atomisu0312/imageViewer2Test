@@ -16,6 +16,19 @@ INSERT INTO app_user (name, email)
 VALUES ($1, $2)
 RETURNING *;
 
+-- name: InsertTeam :one
+-- InsertTeam ...
+INSERT INTO app_team (name)
+VALUES ($1)
+RETURNING *;
+
+-- name: InsertAllocation :one
+-- InsertAllocation ...
+INSERT INTO permission_allocation (user_id, team_id, is_admin, read_level, write_level) 
+VALUES ($1, $2, $3, $4, $5)
+RETURNING *;
+
+
 -- name: GetAllocationByUserIdAndTeamId :one
 -- GetAllocationByUserIdAndTeamId ...
 SELECT *

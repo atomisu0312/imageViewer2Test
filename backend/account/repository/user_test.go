@@ -1,9 +1,12 @@
-package repository
+package repository_test
 
 import (
 	"context"
+	"fmt"
 	"image_viewer/account/config"
 	"image_viewer/account/gen"
+	"image_viewer/account/repository"
+	"image_viewer/account/transaction"
 	"testing"
 
 	_ "github.com/lib/pq"
@@ -24,7 +27,7 @@ func TestPositive(t *testing.T) {
 
 		ctx := context.Background()
 		q := gen.New(dbConn)
-		repo := NewUserRepository(q)
+		repo := repository.NewUserRepository(q)
 		a, _ := repo.GetUserById(ctx, 1)
 
 		assert.Equal(t, "testuser", a.Name, "The user's name should be 'testuser'")
@@ -42,10 +45,57 @@ func TestPositive(t *testing.T) {
 
 		ctx := context.Background()
 		q := gen.New(dbConn)
-		repo := NewUserRepository(q)
+		repo := repository.NewUserRepository(q)
 		a, _ := repo.GetUserById(ctx, 999)
 
 		assert.Equal(t, "", a.Name, "The user's Name should be 'nil'")
 		assert.Equal(t, "", a.Email, "The user's Email should be 'nil'")
+	})
+
+	t.Run("正常系02 ユーザの新規登録処理", func(t *testing.T) {
+		config.BeforeEachForUnitTest()      // テスト前処理
+		defer config.AfterEachForUnitTest() // テスト後処理
+
+		// DIコンテナ内の依存関係を設定
+		injector := do.New()
+		do.Provide(injector, config.TestDbConnection)
+		dbConn := do.MustInvoke[*config.DbConn](injector)
+
+		// 挿入するデータの準備
+		name := "testuser2"
+		email := "test@jgmail.com"
+
+		// トランザクションを張って挿入する処理（UseCaseに記述する処理はこれ）
+		ctx := context.Background()
+		tr := transaction.NewTx(dbConn.DB)
+		var result gen.AppUser
+		err := tr.ExecTx(ctx, func(q *gen.Queries) error {
+			repo := repository.NewUserRepository(q)
+
+			workout, err := repo.InsertUserWithNameAndEmail(ctx, name, email)
+			if err != nil {
+				return fmt.Errorf("error create workout!!!!! %w", err)
+			}
+
+			result = workout
+			return nil
+		})
+		if err != nil {
+			t.Fatalf("Failed to insert user: %v", err)
+		}
+
+		assert.Equal(t, name, result.Name, fmt.Sprintf("The user's Name should be '%s'", name))
+		assert.Equal(t, email, result.Email, fmt.Sprintf("The user's Email should be '%s'", email))
+
+		//　データが挿入されているかどうかを確認
+		q := gen.New(dbConn.DB)
+		repo := repository.NewUserRepository(q)
+		searchResult, err := repo.GetUserById(ctx, result.ID)
+		if err != nil {
+			t.Fatalf("Failed to get user by ID: %v", err)
+		}
+		assert.Equal(t, name, searchResult.Name, "The user's Name should be 'testuser2'")
+		assert.Equal(t, email, searchResult.Email, "The user's Email should be 'test@jgmail.com'")
+
 	})
 }

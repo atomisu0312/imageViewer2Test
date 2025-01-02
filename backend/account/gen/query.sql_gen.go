@@ -309,6 +309,68 @@ func (q *Queries) GetAllocationOnlyById(ctx context.Context, id int64) (Permissi
 	return i, err
 }
 
+const insertAllocation = `-- name: InsertAllocation :one
+INSERT INTO permission_allocation (user_id, team_id, is_admin, read_level, write_level) 
+VALUES ($1, $2, $3, $4, $5)
+RETURNING user_id, team_id, read_level, write_level, is_admin, id, dataowner, regist_date, enable_start_date, enable_end_date, version
+`
+
+type InsertAllocationParams struct {
+	UserID     int64 `db:"user_id" json:"userId"`
+	TeamID     int64 `db:"team_id" json:"teamId"`
+	IsAdmin    bool  `db:"is_admin" json:"isAdmin"`
+	ReadLevel  int64 `db:"read_level" json:"readLevel"`
+	WriteLevel int64 `db:"write_level" json:"writeLevel"`
+}
+
+// InsertAllocation ...
+func (q *Queries) InsertAllocation(ctx context.Context, arg InsertAllocationParams) (PermissionAllocation, error) {
+	row := q.db.QueryRowContext(ctx, insertAllocation,
+		arg.UserID,
+		arg.TeamID,
+		arg.IsAdmin,
+		arg.ReadLevel,
+		arg.WriteLevel,
+	)
+	var i PermissionAllocation
+	err := row.Scan(
+		&i.UserID,
+		&i.TeamID,
+		&i.ReadLevel,
+		&i.WriteLevel,
+		&i.IsAdmin,
+		&i.ID,
+		&i.Dataowner,
+		&i.RegistDate,
+		&i.EnableStartDate,
+		&i.EnableEndDate,
+		&i.Version,
+	)
+	return i, err
+}
+
+const insertTeam = `-- name: InsertTeam :one
+INSERT INTO app_team (name)
+VALUES ($1)
+RETURNING id, name, dataowner, regist_date, enable_start_date, enable_end_date, version
+`
+
+// InsertTeam ...
+func (q *Queries) InsertTeam(ctx context.Context, name string) (AppTeam, error) {
+	row := q.db.QueryRowContext(ctx, insertTeam, name)
+	var i AppTeam
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.Dataowner,
+		&i.RegistDate,
+		&i.EnableStartDate,
+		&i.EnableEndDate,
+		&i.Version,
+	)
+	return i, err
+}
+
 const insertUser = `-- name: InsertUser :one
 INSERT INTO app_user (name, email)
 VALUES ($1, $2)
