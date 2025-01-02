@@ -2,6 +2,7 @@ package usecase_test
 
 import (
 	"context"
+	"fmt"
 	"image_viewer/account/app"
 	"image_viewer/account/config"
 	"image_viewer/account/env"
@@ -74,5 +75,45 @@ func TestAuthPassCode(t *testing.T) {
 
 		// 空文字が返却されていることを確認
 		assert.Equal(t, "", code, "Code Should be Empty")
+	})
+}
+
+// 新規登録時の動作のテスト
+func TestWelcomeAuth(t *testing.T) {
+	t.Run("正常系02.01. 新規チームとユーザを作成する動作", func(t *testing.T) {
+		config.BeforeEachForUnitTest()      // テスト前処理
+		defer config.AfterEachForUnitTest() // テスト後処理
+
+		// DIコンテナ内の依存関係を設定
+		injector := app.SetupDIContainer()
+		do.Override(injector, config.TestDbConnection)
+
+		// UseCaseのインスタンスを作成
+		testee := do.MustInvoke[usecase.AuthUseCase](injector)
+
+		// コンテキストを作成
+		ctx := context.Background()
+
+		// パラメータの準備
+		teamName := "testteam2"
+		userName := "testuser2"
+		email := "test2@example.com"
+
+		// ユースケースの実行
+		_, err := testee.MakeNewTeamAndUser(ctx, teamName, userName, email)
+
+		if err != nil {
+			log.Fatalln("Error creating workout transaction:", err)
+		}
+
+		accountUseCase := do.MustInvoke[usecase.AccountUseCase](injector)
+		searchedUser, err := accountUseCase.FindUserByID(ctx, int64(2))
+		searchedTeam, err := accountUseCase.FindTeamByID(ctx, int64(2))
+
+		// 結果を表示
+		assert.Equal(t, userName, searchedUser["Name"], fmt.Sprintf("expected user name is %s", userName))
+		assert.Equal(t, email, searchedUser["Email"], fmt.Sprintf("expected email is %s", email))
+		assert.Equal(t, teamName, searchedTeam["Name"], fmt.Sprintf("expected team name is %s", teamName))
+
 	})
 }
