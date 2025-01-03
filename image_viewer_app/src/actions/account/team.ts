@@ -20,7 +20,7 @@ export async function makeMyFirstTeam(prevState: State, formData: FormData) {
   formData.append("user_name", session.user.name as string);
   try {
     // postリクエストを送る
-    const response = await fetch(`${process.env.FASTAPI_ACCOUNT_SERVICE_HOST}/welcome/new_team_and_user/`, {
+    const response = await fetch(`${process.env.FASTAPI_ACCOUNT_SERVICE_HOST}/api/myauth/welcome/new/userteam`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
@@ -46,13 +46,21 @@ export async function makeMyFirstTeam(prevState: State, formData: FormData) {
 }
 
 export async function makeFollowerWithKey(prevState: State, formData: FormData) {
+  const session: Session | null = await auth();
+  formData.append("email", session.user.email);
+  formData.append("user_name", session.user.name as string);
+
   console.log(formData.get("passcode"));
   console.log("submit PASSCODE!!!!!!!!!");
 
   try {
     // postリクエストを送る
-    const response = await fetch("http://localhost:8080", {
-      method: "GET",
+    const response = await fetch(`${process.env.FASTAPI_ACCOUNT_SERVICE_HOST}/api/myauth/welcome/new/follower`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ "passcode": formData.get("passcode"), "email": session.user.email, "user_name": session.user.name }),
     });
 
     if (!response.ok) {
