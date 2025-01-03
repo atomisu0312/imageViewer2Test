@@ -1,7 +1,9 @@
 package main
 
 import (
+	"encoding/json"
 	"image_viewer/account/app"
+	"os"
 
 	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
@@ -16,5 +18,6 @@ func main() {
 
 	app.SetupHandler(e, injector)
 
-	e.Logger.Fatal(e.Start(":1323"))
+	data, _ := json.MarshalIndent(e.Routes(), "", "  ")
+	os.WriteFile("./api/routes.json", data, 0644)
 }
