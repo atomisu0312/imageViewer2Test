@@ -1,15 +1,5 @@
 [
   {
-    "method": "GET",
-    "path": "/api/myauth/passcode/:teamid",
-    "name": "image_viewer/account/handler.(*authHandlerImpl).ShowTeamPassCodeByID-fm"
-  },
-  {
-    "method": "POST",
-    "path": "/api/myauth/welcome/new/userteam",
-    "name": "image_viewer/account/handler.(*authHandlerImpl).WelcomeNewUserTeam-fm"
-  },
-  {
     "method": "POST",
     "path": "/api/myauth/welcome/new/follower",
     "name": "image_viewer/account/handler.(*authHandlerImpl).WelcomeNewFollowingUser-fm"
@@ -28,5 +18,15 @@
     "method": "GET",
     "path": "/api/account/allocationSearch",
     "name": "image_viewer/account/handler.(*accountHandlerImpl).GetAllocationsSearch-fm"
+  },
+  {
+    "method": "GET",
+    "path": "/api/myauth/passcode/:teamid",
+    "name": "image_viewer/account/handler.(*authHandlerImpl).ShowTeamPassCodeByID-fm"
+  },
+  {
+    "method": "POST",
+    "path": "/api/myauth/welcome/new/userteam",
+    "name": "image_viewer/account/handler.(*authHandlerImpl).WelcomeNewUserTeam-fm"
   }
 ]

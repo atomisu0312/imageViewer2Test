@@ -53,5 +53,10 @@
       "type": "shell",
       "command": "go test ./...",
     },
+    {
+      "label": "APIパスの出力",
+      "type": "shell",
+      "command": "go run ./api/route.go",
+    },
   ]
 }
