@@ -5,6 +5,8 @@ import ImageView from '@/components/template/imageView';
 import SelectArea from '@/components/organism/selectArea';
 import { fileInfoType, NONE } from '@/types/fileInfoType';
 import React, { useState } from 'react';
+import { store } from '@/store/store';
+import { Provider } from 'react-redux'
 
 /**
  * アプリそのもの
@@ -14,7 +16,7 @@ export function AppFront() {
   const [targetData, setTargetData] = useState<fileInfoType>(NONE);
 
   return (
-    <>
+    <Provider store={store}>
       <div className="grid grid-cols-1 md:grid-cols-12 py-2">
         <div className="col-span-1"></div>
         <div className="col-span-10">
@@ -27,6 +29,6 @@ export function AppFront() {
           <SelectArea setTargetData={setTargetData} />
         </div>
       </div>
-    </>
+    </Provider>
   );
 }
