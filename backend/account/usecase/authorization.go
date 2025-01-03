@@ -30,8 +30,9 @@ type AuthUseCase interface {
 	// FindUserByIDはUserをIDで検索する
 	// {"Name": "testuser", "Email": "sample@gmail.com"}
 	ExportPassCodeByTeamID(ctx context.Context, teamID int64) (string, error)
-	DecodePassCodeByTeamID(ctx context.Context, passCode string) (map[string]interface{}, error)
+	DecodePassCode(ctx context.Context, passCode string) (map[string]interface{}, error)
 	MakeNewTeamAndUser(ctx context.Context, teamName string, userName string, email string) (map[string]interface{}, error)
+	ValidatePassCode(ctx context.Context, passcode string) (map[string]interface{}, error)
 }
 
 // NewAuthUseCase は新しい UseCase インスタンスを作成します
@@ -79,7 +80,7 @@ func (useCase *authUseCaseImpl) ExportPassCodeByTeamID(ctx context.Context, team
 }
 
 // DecodePassCodeByTeamID はチームIDからパスコードをデコードする
-func (useCase *authUseCaseImpl) DecodePassCodeByTeamID(ctx context.Context, passCode string) (map[string]interface{}, error) {
+func (useCase *authUseCaseImpl) DecodePassCode(ctx context.Context, passCode string) (map[string]interface{}, error) {
 	return util.JWTHelper.DecodeJWTWithHMAC(util.StringHelper.UntiInterleaveString(passCode, AuthInterleaveDim), AuthSecret)
 }
 
@@ -89,6 +90,7 @@ func (useCase *authUseCaseImpl) MakeNewTeamAndUser(ctx context.Context, teamName
 
 	tr := transaction.NewTx(useCase.dbConn.DB)
 
+	// トランザクション内で一連の処理を実施
 	err := tr.ExecTx(ctx, func(q *gen.Queries) error {
 
 		// リポジトリの初期化
@@ -115,4 +117,50 @@ func (useCase *authUseCaseImpl) MakeNewTeamAndUser(ctx context.Context, teamName
 	resultMap := util.FilterMapFields(util.StructToMap(result), "WriteLevel", "ReadLevel", "ID", "UserID", "TeamID")
 
 	return resultMap, err
+}
+
+func (useCase *authUseCaseImpl) getTeamByID(ctx context.Context, teamID int64) (map[string]interface{}, error) {
+	// チームIDから永続化されているチーム情報を取得して検証
+	var result gen.AppTeam
+	tr := transaction.NewTx(useCase.dbConn.DB)
+	err := tr.ExecNonTx(ctx, func(q *gen.Queries) error {
+		repo := repository.NewTeamRepository(q)
+
+		workout, err := repo.GetTeamByID(ctx, teamID)
+
+		result = workout
+		return err
+	})
+
+	// 返ってきた値を使いやすいように加工
+	resultMap := util.FilterMapFields(util.StructToMap(result), "Name")
+
+	return resultMap, err
+}
+
+// ValidatePassCode はパスコードを検証する
+func (useCase *authUseCaseImpl) ValidatePassCode(ctx context.Context, passCode string) (map[string]interface{}, error) {
+	// パスコードをデコード
+	decoded, err := util.JWTHelper.DecodeJWTWithHMAC(util.StringHelper.UntiInterleaveString(passCode, AuthInterleaveDim), AuthSecret)
+
+	if err != nil {
+		return nil, fmt.Errorf("Decoding Failed %w", err)
+	}
+
+	// パスコードから取得した値を取得
+	teamIDFromCode := int64(decoded["team_id"].(float64))
+	teamNameFromCode := decoded["team_name"].(string)
+
+	// 返ってきた値を使いやすいように加工
+	teamInfo, err := useCase.getTeamByID(ctx, teamIDFromCode)
+
+	// チーム名が取得できなかった場合、もしくはパスコードに含まれている名前と異なる場合にはエラーを返す
+	if teamInfo["Name"] != teamNameFromCode {
+		return nil, fmt.Errorf("Wrong PassCode %w", err)
+	}
+
+	return map[string]interface{}{
+		"ID":   int64(teamIDFromCode),
+		"Name": teamNameFromCode,
+	}, nil
 }

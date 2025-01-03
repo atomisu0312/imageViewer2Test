@@ -45,7 +45,7 @@ func TestAuthPassCode(t *testing.T) {
 		}
 
 		// Tokenからチーム情報を復元
-		decoded, err := testee.DecodePassCodeByTeamID(ctx, code)
+		decoded, err := testee.DecodePassCode(ctx, code)
 
 		log.Default().Println("devodedInfo", decoded)
 
@@ -115,5 +115,35 @@ func TestWelcomeAuth(t *testing.T) {
 		assert.Equal(t, email, searchedUser["Email"], fmt.Sprintf("expected email is %s", email))
 		assert.Equal(t, teamName, searchedTeam["Name"], fmt.Sprintf("expected team name is %s", teamName))
 
+	})
+
+	t.Run("02.02.  パスコードの検証", func(t *testing.T) {
+		config.BeforeEachForUnitTest()      // テスト前処理
+		defer config.AfterEachForUnitTest() // テスト後処理
+
+		// DIコンテナ内の依存関係を設定
+		injector := app.SetupDIContainer()
+		do.Override(injector, config.TestDbConnection)
+
+		// UseCaseのインスタンスを作成
+		testee := do.MustInvoke[usecase.AuthUseCase](injector)
+
+		// コンテキストを作成
+		ctx := context.Background()
+
+		// パラメータの準備
+		passCodeForTeam1, err := testee.ExportPassCodeByTeamID(ctx, int64(1))
+		if err != nil {
+			log.Fatalln("Failed to generate passcode:", err)
+		}
+
+		// パスコードの検証
+		// 正しいパスコードであればチーム情報が返却される
+		result1, err := testee.ValidatePassCode(ctx, passCodeForTeam1)
+		assert.Equal(t, "testteam", result1["Name"], "TeamName should be 'testteam'")
+
+		// 不正なパスコードであればnilが返却される
+		result2, err := testee.ValidatePassCode(ctx, "dummy")
+		assert.Equal(t, nil, result2["Name"], "Team should be 'nil'")
 	})
 }

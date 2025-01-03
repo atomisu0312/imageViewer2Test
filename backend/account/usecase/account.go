@@ -57,8 +57,8 @@ func (useCase *accountUseCaseImpl) FindUserByID(ctx context.Context, userId int6
 	return resultMap, err
 }
 
-// FindUserByIDはUserをIDで検索する
-// {"Name": "testuser", "Email": "sample@gmail.com"}
+// FindTeamByIDはTeamをIDで検索する
+// {"Name": "testuser"}
 func (useCase *accountUseCaseImpl) FindTeamByID(ctx context.Context, teamID int64) (map[string]interface{}, error) {
 	var result gen.AppTeam
 	tr := transaction.NewTx(useCase.dbConn.DB)
