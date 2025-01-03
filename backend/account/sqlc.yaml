@@ -3,8 +3,8 @@ version: '1'
 packages:
   - name: gen
     path: gen
-    schema: db/
-    queries: queries/
+    schema: sqlc/db/
+    queries: sqlc/queries/
     engine: postgresql
     emit_db_tags: true
     emit_interface: false
