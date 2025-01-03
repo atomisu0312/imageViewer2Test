@@ -93,13 +93,21 @@ func (h *accountHandlerImpl) GetTeamByID(c echo.Context) error {
 	return c.JSON(http.StatusOK, result)
 }
 
+type GetAllocationsSearchVM struct {
+	TeamID int64  `query:"teamid"`
+	Email  string `query:"email"`
+}
+
 // GetAllocationsSearch は、チームIDを指定してチーム情報を取得するエンドポイントです。
 func (h *accountHandlerImpl) GetAllocationsSearch(c echo.Context) error {
 	ctx := c.Request().Context()
-	email := c.QueryParam("email")
-	teamIDString := c.QueryParam("teamid")
+	vm := new(GetAllocationsSearchVM)
+	if err := c.Bind(vm); err != nil {
+		return c.String(http.StatusBadRequest, "bad request")
+	}
 
-	teamID, err := strconv.ParseInt(teamIDString, 10, 64)
+	email := vm.Email
+	teamID := vm.TeamID
 
 	log.Default().Println("teamIDStr: ", email)
 

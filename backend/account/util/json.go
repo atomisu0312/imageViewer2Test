@@ -59,9 +59,8 @@ func FilterMapFields(jsonObj map[string]interface{}, fieldsToKeep ...string) map
 func JsonToMap(jsonObj string) (map[string]interface{}, error) {
 
 	var submitData map[string]interface{}
-	submitJSON := `{"team_name":"testteam2","user_name":"testuser2","email":"test2@gmail.com"}`
 
-	if err := json.Unmarshal([]byte(submitJSON), &submitData); err != nil {
+	if err := json.Unmarshal([]byte(jsonObj), &submitData); err != nil {
 		return nil, fmt.Errorf("error create workout %w", err)
 	}
 

@@ -18,7 +18,22 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-const ()
+// チームID指定でパスコードを取得
+func getPassCodeByTeamID(idStr string, authHandler *handler.AuthHandler) (string, error) {
+
+	e := echo.New()
+	req := httptest.NewRequest(http.MethodGet, "/", nil)
+	rec := httptest.NewRecorder()
+	c := e.NewContext(req, rec)
+
+	// パスに関する設定
+	c.SetPath(fmt.Sprintf("%s%s", handler.APIGroupName, handler.PathGetUserByID))
+	c.SetParamNames("teamid")
+	c.SetParamValues(idStr)
+
+	err := (*authHandler).ShowTeamPassCodeByID(c)
+	return rec.Body.String(), err
+}
 
 // TestAuthShowPassCode は、認証関連のハンドラーのテストを行います。
 func TestAuthShowPassCode(t *testing.T) {
@@ -98,6 +113,22 @@ func TestAuthShowPassCode(t *testing.T) {
 	})
 }
 
+func getUserByIDCheck(idStr string, accountHandler *handler.AccountHandler) (string, error) {
+
+	e := echo.New()
+	reqGet := httptest.NewRequest(http.MethodGet, "/", nil)
+	recGet := httptest.NewRecorder()
+	c2 := e.NewContext(reqGet, recGet)
+
+	// パスに関する設定
+	c2.SetPath(fmt.Sprintf("%s%s", handler.APIGroupName, handler.PathGetTeamByID))
+	c2.SetParamNames("id")
+	c2.SetParamValues(idStr)
+
+	err := (*accountHandler).GetUserByID(c2)
+	return recGet.Body.String(), err
+}
+
 func getTeamByIDCheck(idStr string, accountHandler *handler.AccountHandler) (string, error) {
 
 	e := echo.New()
@@ -153,6 +184,57 @@ func TestAuthWelcome(t *testing.T) {
 		teamJSON2 := fmt.Sprintf(`{"Name":"%s"}`, team_name)
 		result, _ := getTeamByIDCheck("2", &accountHandler)
 		assert.JSONEq(t, teamJSON2, result)
+
+	})
+	t.Run("【正常系】新規登録系エンドポイント 既存チームに紐づくユーザを作成", func(t *testing.T) {
+
+		config.BeforeEachForUnitTest()      // テスト前処理
+		defer config.AfterEachForUnitTest() // テスト後処理
+
+		// DIコンテナ内の依存関係を設定
+		injector := app.SetupDIContainer()
+		do.Override(injector, config.TestDbConnection)
+
+		// ハンドラをコンテナから取得
+		testee := do.MustInvoke[handler.AuthHandler](injector)
+		accountHandler := do.MustInvoke[handler.AccountHandler](injector)
+		passcodeJson, err := getPassCodeByTeamID("1", &testee)
+		passCodeMap, err := util.JsonToMap(passcodeJson)
+		passCode, ok := passCodeMap["passcode"].(string)
+
+		if !ok {
+			t.Fatalf("Failed to get passcode: %v", err)
+		}
+
+		submitJSON := fmt.Sprintf(`{"user_name":"testteam2","email":"test2@gmail.com", "passcode":"%s"}`, passCode)
+
+		// 送信するJSONをMapに変換し、必要な値を抽出しておく
+		convertedMap, _ := util.JsonToMap(submitJSON)
+		username := convertedMap["user_name"].(string)
+		email := convertedMap["email"].(string)
+
+		// アプリケーションおよびHTTPリクエストのセットアップ
+		e := echo.New()
+		req := httptest.NewRequest(http.MethodGet, "/", strings.NewReader(submitJSON))
+		req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+		rec := httptest.NewRecorder()
+		c := e.NewContext(req, rec)
+
+		// Assertions
+		if assert.NoError(t, testee.WelcomeNewFollowingUser(c)) {
+			println("rec.Body.String(): ", rec.Body.String())
+			assert.Equal(t, http.StatusOK, rec.Code)
+		}
+
+		// 以下、ユーザが作成されたことを確認する
+		userJSON2 := fmt.Sprintf(`{"Name":"%s", "Email": "%s"}`, username, email)
+		// ユーザが作成されたことを確認する
+		result, _ := getUserByIDCheck("2", &accountHandler)
+		assert.JSONEq(t, userJSON2, result)
+
+		// チームが作成されていないことを確認する
+		teamFoundDummy, _ := getTeamByIDCheck("2", &accountHandler)
+		assert.JSONEq(t, `{"error":"User not found"}`, teamFoundDummy)
 
 	})
 }

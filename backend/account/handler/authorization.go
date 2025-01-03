@@ -12,9 +12,10 @@ import (
 
 // 以下、他のパッケージから参照できる定数を定義する
 const (
-	APIGroupNameForAuth    = "/myauth"
-	PathShowPassCode       = "/passcode/:teamid"
-	PathWelcomeNewUserTeam = "/welcome/new/userteam"
+	APIGroupNameForAuth         = "/myauth"
+	PathShowPassCode            = "/passcode/:teamid"
+	PathWelcomeNewUserTeam      = "/welcome/new/userteam"
+	PathWelcomeNewFollowingUser = "/welcome/new/follower"
 )
 
 type authHandlerImpl struct {
@@ -27,6 +28,7 @@ type AuthHandler interface {
 	Handler
 	ShowTeamPassCodeByID(c echo.Context) error
 	WelcomeNewUserTeam(c echo.Context) error
+	WelcomeNewFollowingUser(c echo.Context) error
 }
 
 // NewAuthHandler NewAuthHandler の新しいインスタンスを作成します。
@@ -41,6 +43,7 @@ func (h *authHandlerImpl) AddHandler(api *echo.Group) {
 	group := api.Group(APIGroupNameForAuth)
 	group.GET(PathShowPassCode, h.ShowTeamPassCodeByID)
 	group.POST(PathWelcomeNewUserTeam, h.WelcomeNewUserTeam)
+	group.POST(PathWelcomeNewFollowingUser, h.WelcomeNewFollowingUser)
 
 }
 
@@ -93,6 +96,39 @@ func (h *authHandlerImpl) WelcomeNewUserTeam(c echo.Context) error {
 	}
 
 	result, err := h.authUsecase.MakeNewTeamAndUser(ctx, vm.TeamName, vm.UserName, vm.Email)
+
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, map[string]string{"error": err.Error()})
+	}
+
+	return c.JSON(http.StatusOK, result)
+}
+
+// WelcomeNewFollowingUserVM は、新しいユーザーチームを作成するためのVMです。
+type WelcomeNewFollowingUserVM struct {
+	PassCode string `json:"passcode"`
+	UserName string `json:"user_name"`
+	Email    string `json:"email"`
+}
+
+// WelcomeNewFollowingUser は、新しいユーザーチームを作成するエンドポイントです。
+func (h *authHandlerImpl) WelcomeNewFollowingUser(c echo.Context) error {
+	ctx := c.Request().Context()
+	vm := new(WelcomeNewFollowingUserVM)
+
+	if err := c.Bind(vm); err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{"error": "Wrong Request"})
+	}
+
+	validatePasscode, err := h.authUsecase.ValidatePassCode(ctx, vm.PassCode)
+	if validatePasscode == nil {
+		return c.JSON(http.StatusOK, map[string]string{"error": "Wrong Request"})
+	}
+
+	// パスコードからIDを取得
+	teamID := validatePasscode["ID"].(int64)
+
+	result, err := h.authUsecase.MakeNewFollowingUser(ctx, teamID, vm.UserName, vm.Email)
 
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{"error": err.Error()})
