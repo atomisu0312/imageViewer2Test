@@ -131,7 +131,7 @@ func TestWelcomeAuth(t *testing.T) {
 		// コンテキストを作成
 		ctx := context.Background()
 
-		// パラメータの準備
+		// パスコードの生成
 		passCodeForTeam1, err := testee.ExportPassCodeByTeamID(ctx, int64(1))
 		if err != nil {
 			log.Fatalln("Failed to generate passcode:", err)
@@ -145,5 +145,72 @@ func TestWelcomeAuth(t *testing.T) {
 		// 不正なパスコードであればnilが返却される
 		result2, err := testee.ValidatePassCode(ctx, "dummy")
 		assert.Equal(t, nil, result2["Name"], "Team should be 'nil'")
+	})
+
+	t.Run("02.03. 既存チームに紐づくユーザの作成", func(t *testing.T) {
+		config.BeforeEachForUnitTest()      // テスト前処理
+		defer config.AfterEachForUnitTest() // テスト後処理
+
+		// DIコンテナ内の依存関係を設定
+		injector := app.SetupDIContainer()
+		do.Override(injector, config.TestDbConnection)
+
+		// UseCaseのインスタンスを作成
+		testee := do.MustInvoke[usecase.AuthUseCase](injector)
+		accountUseCase := do.MustInvoke[usecase.AccountUseCase](injector)
+
+		// コンテキストを作成
+		ctx := context.Background()
+
+		// パラメータの準備
+		userName := "testuser2"
+		email := "test2@cmail.com"
+		teamID := int64(1)
+
+		// ユーザの作成
+		_, err := testee.MakeNewFollowingUser(ctx, teamID, userName, email)
+		if err != nil {
+			log.Fatalln("Failed to make new follower:", err)
+		}
+
+		// パスコードの検証
+		// 正しいパスコードであればチーム情報が返却される
+		resultAllocation, err := accountUseCase.FindAllocationByTeamIDAndEmail(ctx, email, teamID)
+		assert.Equal(t, int64(2), resultAllocation["ID"], "Allocation ID should be 2")
+		assert.Equal(t, int64(1), resultAllocation["WriteLevel"], "WriteLevel should be 1")
+		assert.Equal(t, int64(1), resultAllocation["ReadLevel"], "ReadLevel should be 2")
+
+		// 追加したユーザの検索
+		resultUserFound, err := accountUseCase.FindUserByID(ctx, int64(2))
+		assert.Equal(t, userName, resultUserFound["Name"], fmt.Sprintf("User Name should be '%s'", userName))
+		assert.Equal(t, email, resultUserFound["Email"], fmt.Sprintf("User Email should be '%s'", email))
+	})
+
+	t.Run("02.03. 【異常系】既存チームに紐づくユーザの作成", func(t *testing.T) {
+		config.BeforeEachForUnitTest()      // テスト前処理
+		defer config.AfterEachForUnitTest() // テスト後処理
+
+		// DIコンテナ内の依存関係を設定
+		injector := app.SetupDIContainer()
+		do.Override(injector, config.TestDbConnection)
+
+		// UseCaseのインスタンスを作成
+		testee := do.MustInvoke[usecase.AuthUseCase](injector)
+
+		// コンテキストを作成
+		ctx := context.Background()
+
+		// パラメータの準備
+		userName := "testuser2"
+		email := "test2@cmail.com"
+		teamID := int64(2)
+
+		// ユーザの作成
+		_, err := testee.MakeNewFollowingUser(ctx, teamID, userName, email)
+		if err != nil {
+			assert.Contains(t, err.Error(), "invalid teamID", "Error should contain 'invalid teamID'")
+		} else {
+			t.Fatalf("Expected an error but got none")
+		}
 	})
 }

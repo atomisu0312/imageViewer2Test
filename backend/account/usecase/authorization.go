@@ -8,6 +8,7 @@ import (
 	"image_viewer/account/repository"
 	"image_viewer/account/transaction"
 	"image_viewer/account/util"
+	"log"
 
 	"github.com/samber/do"
 )
@@ -33,6 +34,7 @@ type AuthUseCase interface {
 	DecodePassCode(ctx context.Context, passCode string) (map[string]interface{}, error)
 	MakeNewTeamAndUser(ctx context.Context, teamName string, userName string, email string) (map[string]interface{}, error)
 	ValidatePassCode(ctx context.Context, passcode string) (map[string]interface{}, error)
+	MakeNewFollowingUser(ctx context.Context, teamID int64, userName string, email string) (map[string]interface{}, error)
 }
 
 // NewAuthUseCase は新しい UseCase インスタンスを作成します
@@ -133,7 +135,7 @@ func (useCase *authUseCaseImpl) getTeamByID(ctx context.Context, teamID int64) (
 	})
 
 	// 返ってきた値を使いやすいように加工
-	resultMap := util.FilterMapFields(util.StructToMap(result), "Name")
+	resultMap := util.FilterMapFields(util.StructToMap(result), "Name", "ID")
 
 	return resultMap, err
 }
@@ -163,4 +165,38 @@ func (useCase *authUseCaseImpl) ValidatePassCode(ctx context.Context, passCode s
 		"ID":   int64(teamIDFromCode),
 		"Name": teamNameFromCode,
 	}, nil
+}
+
+// MakeNewFollowingUser は既存のチームに紐づく新しいユーザを作成する
+func (useCase *authUseCaseImpl) MakeNewFollowingUser(ctx context.Context, teamID int64, userName string, email string) (map[string]interface{}, error) {
+	var result gen.AppUser
+
+	tr := transaction.NewTx(useCase.dbConn.DB)
+
+	foundTeam, err := useCase.getTeamByID(ctx, teamID)
+	log.Println(foundTeam)
+
+	id, ok := foundTeam["ID"].(int64)
+	if !ok || id < 1 {
+		return nil, fmt.Errorf("invalid teamID %w", err)
+	}
+
+	err = tr.ExecTx(ctx, func(q *gen.Queries) error {
+		allocRepo := repository.NewAllocationRepository(q)
+		userRepo := repository.NewUserRepository(q)
+
+		workout, err := userRepo.InsertUserWithNameAndEmail(ctx, userName, email)
+		_, err = allocRepo.InsertAllocation(ctx, workout.ID, teamID, false, 1, 1)
+
+		if err != nil {
+			return fmt.Errorf("error create workout %w", err)
+		}
+
+		result = workout
+		return nil
+	})
+
+	resultMap := util.FilterMapFields(util.StructToMap(result), "ID", "Name", "Email")
+
+	return resultMap, err
 }

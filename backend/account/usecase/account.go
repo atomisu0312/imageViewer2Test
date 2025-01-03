@@ -82,7 +82,7 @@ func (useCase *accountUseCaseImpl) FindTeamByID(ctx context.Context, teamID int6
 }
 
 // FindUserByIDはUserをIDで検索する
-// {"Name": "testuser", "Email": "sample@gmail.com"}
+// {"WriteLevel": int64, "ReadLevel": int64, "ID": int64}
 func (useCase *accountUseCaseImpl) FindAllocationByTeamIDAndEmail(ctx context.Context, email string, teamID int64) (map[string]interface{}, error) {
 	var result gen.PermissionAllocation
 
