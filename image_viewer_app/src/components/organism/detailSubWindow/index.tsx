@@ -7,8 +7,9 @@ export default function DetailSubWindow() {
   const dispatch = useAppDispatch()
 
   return (
-    <div>
-      <button onClick={() => dispatch(invertIsDetailOpen())} > BOTROT </button>
+    // 左詰めにする
+    <div className='justify-start'>
+      <button onClick={() => dispatch(invertIsDetailOpen())} > BUTTON </button>
       {isDetailOpen ? <span>true</span> : <></>}
     </div>
   )

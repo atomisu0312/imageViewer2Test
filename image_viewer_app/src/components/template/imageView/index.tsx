@@ -36,7 +36,7 @@ export default function ImageView({ data }: Props) {
             />
           </ImgViewerTestCompOverRayNoSSR>
         </div>
-        <div className={`${isDetailOpen ? "col-span-6" : "col-span-1"} flex justify-center`}>
+        <div className={`${isDetailOpen ? "col-span-6" : "col-span-1"} flex`}>
           <DetailSubWindow />
         </div>
       </div>
