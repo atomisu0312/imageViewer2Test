@@ -18,9 +18,9 @@ import (
 )
 
 const (
-	userJSON  = `{"Email":"testuser@example.com","Name":"testuser"}`
-	teamJSON  = `{"Name":"testteam"}`
-	allocJSON = `{"ID":1, "WriteLevel":3,"ReadLevel":3}`
+	userJSON  = `{"data":{"Email":"testuser@example.com","Name":"testuser"},"status":"success"}`
+	teamJSON  = `{"data":{"Name":"testteam"},"status":"success"}`
+	allocJSON = `{"data":{"ID":1, "WriteLevel":3,"ReadLevel":3},"status":"success"}`
 )
 
 func TestGetUser(t *testing.T) {
