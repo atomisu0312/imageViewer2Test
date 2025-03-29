@@ -6,7 +6,7 @@ import {
   NextButton,
   PrevButton,
   usePrevNextButtons
-} from '@/components/organism/selectArea/EmblaCarouselArrowButtons'
+} from '@/components/organism/image/selectArea/EmblaCarouselArrowButtons'
 
 import { getSampleDataImage } from '@/actions/images/selector'
 import { fileInfoType } from '@/types/fileInfoType';
@@ -17,7 +17,7 @@ type PropType = {
   setTargetData: (data: fileInfoType) => void
 }
 
-const ImageCellClickable = lazy(() => import('@/components/organism/ImageCelllClickable'));
+const ImageCellClickable = lazy(() => import('@/components/organism/image/ImageCellClickable'));
 
 export default function EmblaCarousel({ options, data, setTargetData }: PropType) {
   const [slides, setSlides] = useState(data)

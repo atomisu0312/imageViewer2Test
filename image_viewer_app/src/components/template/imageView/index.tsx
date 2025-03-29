@@ -2,9 +2,9 @@
 import React, { memo } from 'react';
 import { fileInfoType, NONE } from "@/types/fileInfoType"
 import NoImageComponent from '@/components/molecule/noImageComponent';
-import ImageLayout from '@/components/organism/imageLayout';
+import ImageLayout from '@/components/organism/image/imageLayout';
 import { useDetailOpen } from '@/hooks/useDetailOpen';
-import DetailSubWindow from '@/components/organism/detailSubWindow';
+import DetailSubWindow from '@/components/organism/image/detailSubWindow';
 
 interface Props {
   data: fileInfoType
@@ -26,7 +26,7 @@ const ImageView = memo(function ImageView({ data }: Props) {
         <div className={`${isDetailOpen ? "col-span-6" : "col-span-1"} flex items-center`}>
           <button onClick={toggleDetailOpen}>BUTTON</button>
           <div style={{ display: isDetailOpen ? 'block' : 'none' }}>
-            <DetailSubWindow imageData={data}/>
+            <DetailSubWindow imageData={data} />
           </div>
         </div>
       </div>

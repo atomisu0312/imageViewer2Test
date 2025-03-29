@@ -1,6 +1,6 @@
 'use client'
 
-import AppHeader from '@/components/organism/appHeader';
+import AppHeader from '@/components/organism/common/appHeader';
 
 export default function ImagePage() {
   return (
