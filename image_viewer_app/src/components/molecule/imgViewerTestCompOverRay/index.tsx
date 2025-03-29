@@ -6,6 +6,7 @@ import { LatLng, LatLngBounds, CRS } from "leaflet";
 
 function MapControll({ setBounds, loading }) {
 
+
   // マップのサイズが変更された時にマップの移動範囲を更新するために準備
   const map = useMap();
 
@@ -50,6 +51,7 @@ function MapControll({ setBounds, loading }) {
 
 // MapControlを入れて
 const App = ({ children }: { children: React.ReactNode }) => {
+
   // 子コンポーネントが有効な形式であることを確認
   if (!isValidElement(children)) {
     throw new Error("Child Component is not valid");
@@ -89,7 +91,7 @@ const App = ({ children }: { children: React.ReactNode }) => {
   const childClassName = children.props.className || '';
 
   return (
-    <>
+
       <div style={{ position: "relative" }}>
         {children}
         {/** リーフレットマップコンテナ */}
@@ -115,7 +117,7 @@ const App = ({ children }: { children: React.ReactNode }) => {
           <ImageOverlay url={src} bounds={bounds} />
         </MapContainer>
       </div >
-    </>
+
   );
 }
 
