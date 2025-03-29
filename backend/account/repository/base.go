@@ -17,10 +17,10 @@ type repository struct {
 }
 
 // NewRepository は、リポジトリの新しいインスタンスを作成します。
-func NewRepository[T Repository](f func(*repository) T) T {
+func NewRepository[T Repository](constructor func(*repository) T) T {
 	logger, _ := zap.NewDevelopment()
 	r := &repository{logger: logger}
-	return f(r)
+	return constructor(r)
 }
 
 // logDBOperation は、データベース操作のログを記録します。
