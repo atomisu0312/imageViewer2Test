@@ -1,71 +1,46 @@
 'use client';
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useMemo, useCallback } from "react";
 
 
 // propとしてキャンバスのサイズを準備 
 interface PixelGridProps {
   size: number;
   zoom?: number;
+  cursorColor?: 'blue' | 'red' | 'green'; // カーソルの色を指定するプロパティを追加
 }
 
-export default function PixelGrid({ size, zoom = 100 }: PixelGridProps) {
+export default function PixelGrid({ size, zoom = 100, cursorColor = 'blue' }: PixelGridProps) {
   const BASE = 512;
    
+  // 1. State宣言
   const [pixels, setPixels] = useState<boolean[][]>(() => 
     Array(size).fill(null).map(() => Array(size).fill(false))
   );
   const [isDragging, setIsDragging] = useState(false);
-  const cellSize = BASE / size;
+
+  // 2. Ref宣言
   const lastCellRef = useRef<{ row: number; col: number } | null>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  // キャンバスの描画
-  useEffect(() => {
-    setPixels(Array(size).fill(Array(size).fill(false)));
-  }, [size]);
+  // 3. メモ化された値
+  const cellSize = useMemo(() => BASE / size, [size]);
+  
+  // カーソルのURLをメモ化
+  const cursorUrl = useMemo(() => {
+    if (cursorColor === 'blue') return `url('/cursor/pen.svg')`;
+    return `url('/cursor/colors/pen-${cursorColor}.svg')`;
+  }, [cursorColor]);
 
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    // キャンバスサイズの設定
-    canvas.width = BASE;
-    canvas.height = BASE;
-
-    // グリッドの描画
-    ctx.strokeStyle = '#000000';
-    ctx.lineWidth = 0.2;
-
-    // ピクセルの描画
-    pixels.forEach((row, rowIndex) => {
-      row.forEach((cell, colIndex) => {
-        const x = colIndex * cellSize;
-        const y = rowIndex * cellSize;
-
-        // ピクセルの塗りつぶし
-        ctx.fillStyle = cell ? '#000000' : '#ffffff';
-        ctx.fillRect(x, y, cellSize, cellSize);
-
-        // グリッド線
-        ctx.strokeRect(x, y, cellSize, cellSize);
-      });
-    });
-  }, [pixels]);
-
-  // ピクセルの更新、この際に描画処理が起こる
-  const drawPixel = (row: number, col: number) => {
+  // 4. メモ化されたコールバック
+  const drawPixel = useCallback((row: number, col: number) => {
     setPixels(prev => {
       const newPixels = prev.map(row => [...row]);
       newPixels[row][col] = !newPixels[row][col];
       return newPixels;
     });
-  };
+  }, []);
 
-  // マウスの座標を取得
-  const getCellCoordinates = (e: React.MouseEvent<HTMLCanvasElement>) => {
+  const getCellCoordinates = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
     const canvas = canvasRef.current;
     if (!canvas) return null;
 
@@ -82,24 +57,54 @@ export default function PixelGrid({ size, zoom = 100 }: PixelGridProps) {
       return { row: rowIndex, col: colIndex };
     }
     return null;
-  };
+  }, [cellSize, size]);
 
-  // 【イベント】移動
-  const handleCanvasMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
+  // 5. カスタムフック
+  // なし
+
+  // 6. 副作用
+  useEffect(() => {
+    setPixels(Array(size).fill(Array(size).fill(false)));
+  }, [size]);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    canvas.width = BASE;
+    canvas.height = BASE;
+
+    ctx.strokeStyle = '#000000';
+    ctx.lineWidth = 0.2;
+
+    pixels.forEach((row, rowIndex) => {
+      row.forEach((cell, colIndex) => {
+        const x = colIndex * cellSize;
+        const y = rowIndex * cellSize;
+
+        ctx.fillStyle = cell ? '#000000' : '#ffffff';
+        ctx.fillRect(x, y, cellSize, cellSize);
+        ctx.strokeRect(x, y, cellSize, cellSize);
+      });
+    });
+  }, [pixels, cellSize]);
+
+  // 7. イベントハンドラ
+  const handleCanvasMouseMove = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
     const coords = getCellCoordinates(e);
     if (coords) {
-      // ドラッグ中で、前回のセルと異なる場合のみ色を変更
-      if (isDragging  && 
+      if (isDragging && 
           (lastCellRef.current?.row !== coords.row || lastCellRef.current?.col !== coords.col)) {
         drawPixel(coords.row, coords.col);
         lastCellRef.current = coords;
       }
     }
-  };
+  }, [isDragging, getCellCoordinates, drawPixel]);
 
-  // 【イベント】クリック
-  const handleCanvasMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
-    // 左クリックの場合
+  const handleCanvasMouseDown = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
     if (e.button === 0) {
       setIsDragging(true);
       const coords = getCellCoordinates(e);
@@ -108,14 +113,13 @@ export default function PixelGrid({ size, zoom = 100 }: PixelGridProps) {
         lastCellRef.current = coords;
       }
     }
-  };
+  }, [getCellCoordinates, drawPixel]);
 
-  // 【イベント】マウスアップ
-  const handleCanvasMouseUp = () => {
-    // クリックから手を離していたら、ドラッグを停止
+  const handleCanvasMouseUp = useCallback(() => {
     setIsDragging(false);
-  };
+  }, []);
 
+  // 8. JSX
   return (
     <div className="flex justify-center overflow-auto" style={{ width: '100%', height: '100%' }}>
       <div 
@@ -134,7 +138,11 @@ export default function PixelGrid({ size, zoom = 100 }: PixelGridProps) {
           onMouseMove={handleCanvasMouseMove}
           onMouseDown={handleCanvasMouseDown}
           onMouseUp={handleCanvasMouseUp}
-          style={{ width: `${BASE}px`, height: `${BASE}px` }}
+          style={{ 
+            width: `${BASE}px`, 
+            height: `${BASE}px`,
+            cursor: `${cursorUrl}, auto`
+          }}
         />
       </div>
     </div>
