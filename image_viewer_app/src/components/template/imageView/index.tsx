@@ -1,11 +1,11 @@
 'use client'
-import React, { use, useEffect, useRef, useState } from 'react';
+import React from 'react';
 import { fileInfoType, NONE } from "@/types/fileInfoType"
 import dynamic from 'next/dynamic';
 import NoImageComponent from '@/components/molecule/noImageComponent';
 import DetailSubWindow from '@/components/organism/detailSubWindow';
-import { useSelector } from 'react-redux'
-import { RootState, useAppDispatch } from '@/store/store'
+import { useDetailOpen } from '@/hooks/useDetailOpen';
+
 interface Props {
   data: fileInfoType
 }
@@ -16,7 +16,7 @@ const ImgViewerTestCompOverRayNoSSR = dynamic(
 );
 
 export default function ImageView({ data }: Props) {
-  const isDetailOpen = useSelector((state: RootState) => state.isDetailOpenSlice.value);
+  const { isDetailOpen } = useDetailOpen();
 
   if (data == NONE) {
     return <NoImageComponent />

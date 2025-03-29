@@ -1,16 +1,13 @@
-import { useSelector } from 'react-redux'
-import { RootState, useAppDispatch } from '@/store/store'
-import { invertIsDetailOpen } from '@/store/imageViewSlice'
+import { useDetailOpen } from '@/hooks/useDetailOpen';
 
 export default function DetailSubWindow() {
-  const isDetailOpen = useSelector((state: RootState) => state.isDetailOpenSlice.value);
-  const dispatch = useAppDispatch()
+  const { isDetailOpen, toggleDetailOpen } = useDetailOpen();
 
   return (
     // 左詰めにする
     <div className='justify-start'>
-      <button onClick={() => dispatch(invertIsDetailOpen())} > BUTTON </button>
+      <button onClick={toggleDetailOpen}>BUTTON</button>
       {isDetailOpen ? <span>true</span> : <></>}
     </div>
-  )
+  );
 }
