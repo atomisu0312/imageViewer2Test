@@ -7,7 +7,6 @@ import { fileInfoType, NONE } from '@/types/fileInfoType';
 import React, { useState } from 'react';
 import { store } from '@/store/store';
 import { Provider } from 'react-redux'
-import AppHeader from '@/components/organism/appHeader';
 
 /**
  * アプリそのもの
@@ -18,11 +17,6 @@ export function AppFront() {
 
   return (
     <Provider store={store}>
-      <div className="grid grid-cols-1">
-        <div className="col-span-1">
-          <AppHeader/>
-        </div>
-      </div>
       <div className="grid grid-cols-1 md:grid-cols-12 py-2">
         <div className="col-span-1"></div>
         <div className="col-span-10">

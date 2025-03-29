@@ -5,7 +5,6 @@ import AppHeader from '@/components/organism/appHeader';
 export default function TeamPage() {
   return (
     <div>
-      <AppHeader />
       <div className="p-4">
         <div className="max-w-2xl mx-auto">
           <div className="bg-white rounded-lg shadow-sm p-6">

@@ -5,7 +5,6 @@ import AppHeader from '@/components/organism/appHeader';
 export default function ImagePage() {
   return (
     <div>
-      <AppHeader />
       <div className="p-4">
         <div className="grid grid-cols-12 gap-4">
           <div className="col-span-8 bg-white p-4 rounded-lg shadow-sm">
