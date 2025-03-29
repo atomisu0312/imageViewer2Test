@@ -10,16 +10,16 @@ import { checkAuthorizedByUserEmail } from "@/lib/account/account";
  * @returns 
  */
 const Welcome = () => {
-  redirect('/imageViewer/welcome');
+  redirect('/welcome');
   return <></>;
 }
 
 /**
- * 既存のユーザであれば、imageViewerページにリダイレクトする
+ * 既存のユーザであれば、画像表示ページにリダイレクトする
  * @returns 
  */
 const MyApp = () => {
-  redirect('/imageViewer/app');
+  redirect('/app/image/view');
   return <></>
 }
 /**

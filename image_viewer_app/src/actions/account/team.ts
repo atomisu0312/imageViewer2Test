@@ -3,6 +3,7 @@ import { auth } from "@/lib/auth/auth";
 import { Session } from "next-auth";
 import { redirect } from "next/navigation";
 import { revalidatePath } from 'next/cache';
+import { checkAuthorizedByUserEmail } from '@/lib/account/account';
 
 export type State = {
   errors?: {
@@ -39,9 +40,9 @@ export async function makeMyFirstTeam(prevState: State, formData: FormData) {
 
   } finally {
     // キャッシュをクリアするメソッドなんだけど、リダイレクト前のおまじないみたいな扱いになっとる
-    revalidatePath('/imageViewer');
+    revalidatePath('/app/image/view');
     // リダイレクト処理 
-    redirect('/imageViewer');
+    redirect('/app/image/view');
   }
 }
 
@@ -76,10 +77,9 @@ export async function makeFollowerWithKey(prevState: State, formData: FormData) 
     return { error: "Failed to submit the form. Please try again later." };
 
   } finally {
-
     // キャッシュをクリアするメソッドなんだけど、リダイレクト前のおまじないみたいな扱いになっとる
-    revalidatePath('/imageViewer');
+    revalidatePath('/app/image/view');
     // リダイレクト処理 
-    redirect('/imageViewer');
+    redirect('/app/image/view');
   }
 }

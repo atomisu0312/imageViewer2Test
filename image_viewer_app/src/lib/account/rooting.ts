@@ -4,7 +4,7 @@ import { Session } from 'next-auth';
 import { redirect } from 'next/navigation';
 
 /** 
- * もし登録されていないユーザであれば、初期画面にリダイレクトさせる
+ * もし登録されていないユーザであれば、welcomeページにリダイレクトさせる
  * 注意：本来登録されているユーザがアクセスできないページでこれを使うと、
  * 無限にリダイレクトが走るので注意が必要？ 
  * */
@@ -13,13 +13,13 @@ const redirectIfNotHaveAccount = async () => {
   const authorized = await checkAuthorizedByUserEmail(session.user.email);
 
   if (!authorized) {
-    redirect('/imageViewer');
+    redirect('/welcome');
   }
 }
 
 
 /** 
- * もし登録されているユーザであれば、初期画面にリダイレクトさせる
+ * もし登録されているユーザであれば、画像表示ページにリダイレクトさせる
  * 注意：本来登録されているユーザしかアクセスできないページでこれを使うと、
  * 無限にリダイレクトが走るので注意が必要？ 
  * */
@@ -28,7 +28,7 @@ const redirectIfHaveAccount = async () => {
   const authorized = await checkAuthorizedByUserEmail(session.user.email);
 
   if (authorized) {
-    redirect('/imageViewer');
+    redirect('/app/image/view');
   }
 }
 
