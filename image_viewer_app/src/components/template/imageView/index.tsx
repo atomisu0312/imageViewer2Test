@@ -1,22 +1,17 @@
 'use client'
-import React from 'react';
+import React, { memo } from 'react';
 import { fileInfoType, NONE } from "@/types/fileInfoType"
-import dynamic from 'next/dynamic';
 import NoImageComponent from '@/components/molecule/noImageComponent';
-import DetailSubWindow from '@/components/organism/detailSubWindow';
+import ImageLayout from '@/components/organism/imageLayout';
 import { useDetailOpen } from '@/hooks/useDetailOpen';
+import DetailSubWindow from '@/components/organism/detailSubWindow';
 
 interface Props {
   data: fileInfoType
 }
 
-const ImgViewerTestCompOverRayNoSSR = dynamic(
-  () => import('@/components/molecule/imgViewerTestCompOverRay'),
-  { ssr: false }
-);
-
-export default function ImageView({ data }: Props) {
-  const { isDetailOpen } = useDetailOpen();
+const ImageView = memo(function ImageView({ data }: Props) {
+  const { isDetailOpen, toggleDetailOpen } = useDetailOpen();
 
   if (data == NONE) {
     return <NoImageComponent />
@@ -25,21 +20,20 @@ export default function ImageView({ data }: Props) {
   return (
     <div className="flex justify-center items-center mt-0">
       <div className="grid grid-cols-1 md:grid-cols-12 py-2">
-        <div className={`${isDetailOpen ? "col-span-6" : "col-span-11"}  flex justify-center`}>
-          <ImgViewerTestCompOverRayNoSSR>
-            <img
-              src={data.imageUrl}
-              alt="sampleImage"
-              sizes=""
-              className="flex-1 object-contain border-4 border-collapse border-gray-300"
-              style={{ borderRadius: '20px', maxHeight: '50vh', maxWidth: '40vw' }}
-            />
-          </ImgViewerTestCompOverRayNoSSR>
+        <div className={`${isDetailOpen ? "col-span-6" : "col-span-11"}`}>
+          <ImageLayout imageUrl={data.imageUrl} />
         </div>
-        <div className={`${isDetailOpen ? "col-span-6" : "col-span-1"} flex`}>
-          <DetailSubWindow />
+        <div className={`${isDetailOpen ? "col-span-6" : "col-span-1"} flex items-center`}>
+          <button onClick={toggleDetailOpen}>BUTTON</button>
+          <div style={{ display: isDetailOpen ? 'block' : 'none' }}>
+            <DetailSubWindow imageData={data}/>
+          </div>
         </div>
       </div>
     </div>
-  )
-}
+  );
+}, (prevProps, nextProps) => {
+  return prevProps.data.imageUrl === nextProps.data.imageUrl;
+});
+
+export default ImageView;

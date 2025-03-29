@@ -1,13 +1,18 @@
-import { useDetailOpen } from '@/hooks/useDetailOpen';
 
-export default function DetailSubWindow() {
-  const { isDetailOpen, toggleDetailOpen } = useDetailOpen();
+import { memo } from 'react';
+import { fileInfoType } from '@/types/fileInfoType';
+
+interface DetailSubWindowProps {
+  imageData: fileInfoType;
+}
+
+const DetailSubWindow = memo(function DetailSubWindow({ imageData }: DetailSubWindowProps) {
 
   return (
     // 左詰めにする
     <div className='justify-start'>
-      <button onClick={toggleDetailOpen}>BUTTON</button>
-      {isDetailOpen ? <span>true</span> : <></>}
+      <span>{imageData.text}</span>
     </div>
   );
-}
+})
+export default DetailSubWindow; 
