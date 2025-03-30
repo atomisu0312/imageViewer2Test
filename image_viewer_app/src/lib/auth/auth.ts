@@ -11,7 +11,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   callbacks: {
     authorized({ request, auth }) {
       const { pathname } = request.nextUrl;
-      if (pathname === "/imageViewer" || pathname === "/") {
+      if (pathname === "/app/pixel/new" || pathname === "/") {
         return true;
       }
       return !!auth;

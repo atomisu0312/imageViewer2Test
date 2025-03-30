@@ -10,7 +10,12 @@ import { redirect } from 'next/navigation';
  * */
 const redirectIfNotHaveAccount = async () => {
   const session: Session | null = await auth();
-  const authorized = await checkAuthorizedByUserEmail(session.user.email);
+
+  if (session == null) {
+    redirect('/welcome');
+  }
+
+  const authorized = await checkAuthorizedByUserEmail(session.user?.email);
 
   if (!authorized) {
     redirect('/welcome');
