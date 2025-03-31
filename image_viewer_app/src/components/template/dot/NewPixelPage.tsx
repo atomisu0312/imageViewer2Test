@@ -44,15 +44,15 @@ export default function NewPixelPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         {/* ドット絵作成エリア */}
         <div className="lg:col-span-2">
-          <div className="border rounded-lg">
-            <div className="border border-slate-700 p-3 justify-center">
-              <h1 className="text-center text-3xl">キャンバス：{canvasSize}x{canvasSize}</h1>
-              <div>
+          <div className="border rounded-lg bg-slate-800">
+            <div className="border border-slate-700 p-3">
+              <h1 className="text-center text-3xl text-white mb-4">キャンバス：{canvasSize}x{canvasSize}</h1>
+              <div className="flex justify-center items-center min-h-[512px] bg-slate-900 rounded-lg">
                 <PixelGrid size={canvasSize} zoom={zoom} cursorColor={cursorColor} />
               </div>
             </div>
           </div>
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-3 gap-4 mt-4">
             <div className="text-white">
               <label className="block mb-2">キャンバスサイズ</label>
               <select 

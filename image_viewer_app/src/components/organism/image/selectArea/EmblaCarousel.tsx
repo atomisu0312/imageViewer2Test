@@ -112,7 +112,7 @@ export default function EmblaCarousel({ options, data, setTargetData }: PropType
             {flag && (
               <div className="embla__slide flex items-center">
                 <div className="embla__slide__number h-28">
-                  <span className="embla-infinite-sscroll__spinner" >同期中</span>
+                  <span className="embla-infinite-sscroll__spinner">同期中</span>
                 </div>
               </div>
             )}
@@ -129,6 +129,5 @@ export default function EmblaCarousel({ options, data, setTargetData }: PropType
         </div>
       </div>
     </Suspense>
-
   )
 }

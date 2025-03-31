@@ -1,5 +1,5 @@
-
 import '@/app/globals.css';
+import '@/app/app/image/embra.css';
 import { EmblaOptionsType } from 'embla-carousel'
 import EmblaCarousel from './EmblaCarousel'
 const OPTIONS: EmblaOptionsType = {
@@ -8,11 +8,9 @@ const OPTIONS: EmblaOptionsType = {
   watchSlides: false,
   watchResize: false
 }
-import { getDataSample } from '@/actions/fileActions';
+import { getSampleDataImage } from '@/actions/images/selector';
 import { fileInfoType } from '@/types/fileInfoType';
-import React, { useEffect, useState, Suspense, lazy } from 'react';
-
-
+import React, { useEffect, useState, Suspense } from 'react';
 
 /**
  * appページ用のエンドポイント
@@ -24,9 +22,9 @@ export default function Page({ setTargetData }) {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // ここでデータを非同期にフェッチ
-        const result = await getDataSample();
-        setData(result);
+        // 初期データを取得（0から9までのスライド）
+        const result = await getSampleDataImage({ startPage: 0, endPage: 9 });
+        setData(result.slides);
       } catch (error) {
         console.error('データのフェッチに失敗しました', error);
       }
@@ -35,9 +33,15 @@ export default function Page({ setTargetData }) {
     fetchData();
   }, []);
 
+  if (!data) {
+    return <div className="flex items-center justify-center h-64">Loading...</div>;
+  }
+
   return (
-    <Suspense fallback={<div>Loading...</div>}>
-      <EmblaCarousel options={OPTIONS} data={data} setTargetData={setTargetData} />
-    </Suspense>
+    <div className="w-full max-w-4xl mx-auto">
+      <Suspense fallback={<div className="flex items-center justify-center h-64">Loading...</div>}>
+        <EmblaCarousel options={OPTIONS} data={data} setTargetData={setTargetData} />
+      </Suspense>
+    </div>
   );
 }
