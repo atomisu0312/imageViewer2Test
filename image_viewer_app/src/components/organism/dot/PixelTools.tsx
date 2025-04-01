@@ -1,11 +1,10 @@
-import React from 'react';
-
+import { memo } from 'react';
 interface PixelToolsProps {
   onToolSelect: (tool: string) => void;
   selectedTool: string;
 }
 
-export const PixelTools: React.FC<PixelToolsProps> = ({ onToolSelect, selectedTool }) => {
+export const PixelTools: React.FC<PixelToolsProps> = memo( ({ onToolSelect, selectedTool }: PixelToolsProps) => {
   const tools = [
     { id: 'pen', name: 'ペン' },
     { id: 'eraser', name: '消しゴム' },
@@ -31,4 +30,4 @@ export const PixelTools: React.FC<PixelToolsProps> = ({ onToolSelect, selectedTo
       </div>
     </div>
   );
-}; 
+}); 

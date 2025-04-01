@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useRef, useState, useMemo, useCallback } from "react";
+import { useEffect, useRef, useState, useMemo, useCallback, memo } from "react";
 import { CursorColorType } from "@/types/pixel";
 
 interface PixelGridProps {
@@ -8,7 +8,8 @@ interface PixelGridProps {
   cursorColor?: CursorColorType;
 }
 
-export default function PixelGrid({ size, zoom = 100, cursorColor = 'blue' }: PixelGridProps) {
+const PixelGrid = memo(function PixelGrid({ size, zoom = 100, cursorColor = 'blue' }: PixelGridProps) {
+  console.log('PixelGrid');
   // キャンバスのサイズを512pxに固定
   const BASE = 512;
    
@@ -61,7 +62,7 @@ export default function PixelGrid({ size, zoom = 100, cursorColor = 'blue' }: Pi
 
   // 6. 副作用
   useEffect(() => {
-    setPixels(Array(size).fill(Array(size).fill(false)));
+    setPixels(Array(size).fill(null).map(() => Array(size).fill(false)));
   }, [size]);
 
   useEffect(() => {
@@ -144,4 +145,6 @@ export default function PixelGrid({ size, zoom = 100, cursorColor = 'blue' }: Pi
       </div>
     </div>
   );
-} 
+});
+
+export default PixelGrid; 

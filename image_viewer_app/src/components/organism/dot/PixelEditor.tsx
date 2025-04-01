@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import PixelGrid from "@/components/organism/dot/PixelGrid";
 import { CursorColorType, CanvasSizeType, ZoomLevelType } from "@/types/pixel";
 
@@ -7,11 +8,11 @@ export type PixelEditorProps = {
   cursorColor: CursorColorType;
 };
 
-export const PixelEditor = ({
+export const PixelEditor = memo(function PixelEditor({
   canvasSize,
   zoom,
   cursorColor,
-}: PixelEditorProps) => {
+}: PixelEditorProps) {
   return (
     <div className="border rounded-lg bg-slate-800">
       <div className="border border-slate-700 p-3">
@@ -26,4 +27,4 @@ export const PixelEditor = ({
       </div>
     </div>
   );
-}; 
+}); 
