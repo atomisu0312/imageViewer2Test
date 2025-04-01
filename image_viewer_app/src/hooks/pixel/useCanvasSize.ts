@@ -1,15 +1,11 @@
-import { useState, useCallback } from 'react';
+import { useNumberSelect } from '../common/useNumberSelect';
+import { CanvasSizeType, DEFAULT_VALUES } from '@/types/pixel';
 
-export const useCanvasSize = (initialSize: number = 8) => {
-  const [canvasSize, setCanvasSize] = useState<number>(initialSize);
-
-  const handleSizeChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
-    const newSize = parseInt(e.target.value);
-    setCanvasSize(newSize);
-  }, []);
+export const useCanvasSize = (initialSize?: CanvasSizeType) => {
+  const inputProps = useNumberSelect(initialSize ?? DEFAULT_VALUES.canvasSize);
 
   return {
-    canvasSize,
-    handleSizeChange
+    value: inputProps.value as CanvasSizeType,
+    onChange: inputProps.onChange
   };
 }; 

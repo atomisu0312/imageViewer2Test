@@ -33,6 +33,7 @@ const nextConfig = {
         tls: false,
       };
     }
+    config.resolve.extensions = ['.ts', '.tsx', '.js', '.jsx', ...config.resolve.extensions];
     return config;
   },
 }

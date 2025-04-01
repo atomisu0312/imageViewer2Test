@@ -1,18 +1,18 @@
 'use client';
 import { useEffect, useRef, useState, useMemo, useCallback } from "react";
+import { CursorColorType } from "@/types/pixel";
 
-
-// propとしてキャンバスのサイズを準備 
 interface PixelGridProps {
   size: number;
   zoom?: number;
-  cursorColor?: 'blue' | 'red' | 'green'; // カーソルの色を指定するプロパティを追加
+  cursorColor?: CursorColorType;
 }
 
 export default function PixelGrid({ size, zoom = 100, cursorColor = 'blue' }: PixelGridProps) {
+  // キャンバスのサイズを512pxに固定
   const BASE = 512;
    
-  // 1. State宣言
+  // 1. pixelsの初期化
   const [pixels, setPixels] = useState<boolean[][]>(() => 
     Array(size).fill(null).map(() => Array(size).fill(false))
   );
@@ -58,9 +58,6 @@ export default function PixelGrid({ size, zoom = 100, cursorColor = 'blue' }: Pi
     }
     return null;
   }, [cellSize, size]);
-
-  // 5. カスタムフック
-  // なし
 
   // 6. 副作用
   useEffect(() => {
@@ -120,7 +117,7 @@ export default function PixelGrid({ size, zoom = 100, cursorColor = 'blue' }: Pi
   }, []);
 
   // 8. JSX
-  return (
+  return (    
     <div className="flex justify-center overflow-auto" style={{ width: '100%', height: '100%' }}>
       <div 
         style={{ 

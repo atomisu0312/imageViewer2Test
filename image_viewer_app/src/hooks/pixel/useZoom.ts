@@ -1,15 +1,11 @@
-import { useState, useCallback } from 'react';
+import { useNumberSelect } from '../common/useNumberSelect';
+import { ZoomLevelType, DEFAULT_VALUES } from '@/types/pixel';
 
-export const useZoom = (initialZoom: number = 100) => {
-  const [zoom, setZoom] = useState<number>(initialZoom);
-
-  const handleZoomChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
-    const newZoom = parseInt(e.target.value);
-    setZoom(newZoom);
-  }, []);
+export const useZoom = (initialZoom?: ZoomLevelType) => {
+  const inputProps = useNumberSelect(initialZoom ?? DEFAULT_VALUES.zoom);
 
   return {
-    zoom,
-    handleZoomChange
+    value: inputProps.value as ZoomLevelType,
+    onChange: inputProps.onChange
   };
 }; 

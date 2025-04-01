@@ -1,30 +1,27 @@
 'use client';
-import { useCallback, useState } from 'react';
-import PixelGrid from "@/components/organism/dot/PixelGrid";
+import { useCallback, useState, useMemo } from 'react';
+import { PixelEditor } from "@/components/organism/dot/PixelEditor";
+import { PixelEditorProperties } from "@/components/organism/dot/PixelEditorProperties";
+import { PixelTools } from "@/components/organism/dot/PixelTools";
+import { ColorPalette } from "@/components/organism/dot/ColorPalette";
+import { ActionButtons } from "@/components/organism/dot/ActionButtons";
 import { useCanvasSize } from "@/hooks/pixel/useCanvasSize";
 import { useZoom } from "@/hooks/pixel/useZoom";
+import { useCursorColor } from "@/hooks/pixel/useCursorColor";
+import { CursorColorType } from "@/types/pixel";
 
 export default function NewPixelPage() {
   // 1. State宣言
-  const [cursorColor, setCursorColor] = useState<'blue' | 'red' | 'green'>('blue');
-
-  // 2. Ref宣言
-  // なし
+  const [selectedTool, setSelectedTool] = useState('pen');
+  const [selectedColor, setSelectedColor] = useState('#000000');
 
   // 3. メモ化された値
-  // なし
-
-  // 4. メモ化されたコールバック
-  const handleCursorColorChange = useCallback((e: React.ChangeEvent<HTMLSelectElement>) => {
-    setCursorColor(e.target.value as 'blue' | 'red' | 'green');
-  }, []);
+  const colors = useMemo(() => Array(32).fill('#000000'), []); // 仮の色情報（後で実際の色を追加）
 
   // 5. カスタムフック
-  const { canvasSize, handleSizeChange } = useCanvasSize();
-  const { zoom, handleZoomChange } = useZoom();
-
-  // 6. 副作用
-  // なし
+  const { value: canvasSize, onChange: setCanvasSize } = useCanvasSize();
+  const { value: zoom, onChange: setZoom } = useZoom();
+  const { value: cursorColor, onChange: setCursorColor } = useCursorColor();
 
   // 7. イベントハンドラ
   const handleSave = useCallback(() => {
@@ -37,6 +34,27 @@ export default function NewPixelPage() {
     console.log('キャンセルしました');
   }, []);
 
+  const handleCanvasSizeChange = useCallback((size: number) => {
+    setCanvasSize({ target: { value: String(size) } } as React.ChangeEvent<HTMLSelectElement>);
+  }, []);
+
+  const handleZoomChange = useCallback((newZoom: number) => {
+    setZoom({ target: { value: String(newZoom) } } as React.ChangeEvent<HTMLSelectElement>);
+  }, []);
+
+  const handleCursorColorChange = useCallback((color: CursorColorType) => {
+    setCursorColor({ target: { value: color } } as React.ChangeEvent<HTMLSelectElement>);
+  }, []);
+
+  const handleToolSelect = useCallback((tool: string) => {
+    setSelectedTool(tool);
+  }, []);
+
+  const handleColorSelect = useCallback((color: string) => {
+    setSelectedColor(color);
+    setCursorColor({ target: { value: color as CursorColorType } } as React.ChangeEvent<HTMLSelectElement>);
+  }, []);
+
   // 8. JSX
   return (
     <div className="p-4">
@@ -44,91 +62,36 @@ export default function NewPixelPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         {/* ドット絵作成エリア */}
         <div className="lg:col-span-2">
-          <div className="border rounded-lg bg-slate-800">
-            <div className="border border-slate-700 p-3">
-              <h1 className="text-center text-3xl text-white mb-4">キャンバス：{canvasSize}x{canvasSize}</h1>
-              <div className="flex justify-center items-center min-h-[512px] bg-slate-900 rounded-lg">
-                <PixelGrid size={canvasSize} zoom={zoom} cursorColor={cursorColor} />
-              </div>
-            </div>
-          </div>
-          <div className="grid grid-cols-3 gap-4 mt-4">
-            <div className="text-white">
-              <label className="block mb-2">キャンバスサイズ</label>
-              <select 
-                className="w-full p-2 rounded text-black bg-white" 
-                value={canvasSize}
-                onChange={handleSizeChange}
-              >
-                <option value="8">8x8</option>
-                <option value="16">16x16</option>
-                <option value="32">32x32</option>
-                <option value="64">64x64</option>
-              </select>
-            </div>
-            <div className="text-white">
-              <label className="block mb-2">ズーム</label>
-              <select 
-                className="w-full p-2 rounded text-black bg-white"
-                value={zoom}
-                onChange={handleZoomChange}
-              >
-                <option value="100">100%</option>
-                <option value="200">200%</option>
-                <option value="400">400%</option>
-              </select>
-            </div>
-            <div className="text-white">
-              <label className="block mb-2">カーソル色</label>
-              <select 
-                className="w-full p-2 rounded text-black bg-white"
-                value={cursorColor}
-                onChange={handleCursorColorChange}
-              >
-                <option value="blue">青</option>
-                <option value="red">赤</option>
-                <option value="green">緑</option>
-              </select>
-            </div>
-          </div>
+          <PixelEditor
+            canvasSize={canvasSize}
+            zoom={zoom}
+            cursorColor={cursorColor}
+          />
+          <PixelEditorProperties
+            canvasSize={canvasSize}
+            zoom={zoom}
+            cursorColor={cursorColor}
+            onCanvasSizeChange={handleCanvasSizeChange}
+            onZoomChange={handleZoomChange}
+            onCursorColorChange={handleCursorColorChange}
+          />
         </div>
 
         {/* ツールエリア */}
         <div className="space-y-4">
-          <div className="text-white">
-            <h2 className="text-xl font-semibold mb-2">ツール</h2>
-            <div className="grid grid-cols-2 gap-2">
-              <button className="p-2 border rounded">ペン</button>
-              <button className="p-2 border rounded">消しゴム</button>
-              <button className="p-2 border rounded">塗りつぶし</button>
-              <button className="p-2 border rounded">スポイト</button>
-            </div>
-          </div>
-
-          <div className="text-white">
-            <h2 className="text-xl font-semibold mb-2">カラーパレット</h2>
-            <div className="grid grid-cols-8 gap-2">
-              {Array(32).fill(null).map((_, i) => (
-                <div key={i} className="aspect-square border rounded"></div>
-              ))}
-            </div>
-          </div>
-
-          {/* アクションエリア */}
-          <div className="space-y-2">
-            <button 
-              className="w-full p-2 bg-blue-600 text-white rounded"
-              onClick={handleSave}
-            >
-              保存
-            </button>
-            <button 
-              className="w-full p-2 border text-white rounded"
-              onClick={handleCancel}
-            >
-              キャンセル
-            </button>
-          </div>
+          <PixelTools
+            selectedTool={selectedTool}
+            onToolSelect={handleToolSelect}
+          />
+          <ColorPalette
+            colors={colors}
+            selectedColor={selectedColor}
+            onColorSelect={handleColorSelect}
+          />
+          <ActionButtons
+            onSave={handleSave}
+            onCancel={handleCancel}
+          />
         </div>
       </div>
     </div>
