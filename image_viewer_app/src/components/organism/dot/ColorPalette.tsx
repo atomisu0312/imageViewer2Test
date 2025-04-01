@@ -12,8 +12,8 @@ export const ColorPalette: React.FC<ColorPaletteProps> = ({ colors, onColorSelec
       <h2 className="text-xl font-semibold mb-2">カラーパレット</h2>
       <div className="grid grid-cols-8 gap-2">
         {colors.map((color, i) => (
-          <div
-            key={i}
+          <button
+            key={`color_${color}`}
             className="aspect-square border rounded"
             onClick={() => onColorSelect(color)}
           />
