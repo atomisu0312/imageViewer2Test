@@ -2,7 +2,7 @@
 import { useCallback, useState, useMemo } from 'react';
 import { PixelEditor } from "@/components/organism/pixel/PixelEditor";
 import { PixelEditorProperties } from "@/components/organism/pixel/PixelEditorProperties";
-import { PixelTools } from "@/components/organism/pixel/PixelTools";
+import PixelTools from "@/components/organism/pixel/PixelTools";
 import { ColorPalette } from "@/components/organism/pixel/ColorPalette";
 import { ActionButtons } from "@/components/organism/pixel/ActionButtons";
 import { useCanvasSize } from "@/hooks/pixel/useCanvasSize";
@@ -36,15 +36,15 @@ export default function NewPixelPage() {
 
   const handleCanvasSizeChange = useCallback((size: number) => {
     setCanvasSize({ target: { value: String(size) } } as React.ChangeEvent<HTMLSelectElement>);
-  }, []);
+  }, [setCanvasSize]);
 
   const handleZoomChange = useCallback((newZoom: number) => {
     setZoom({ target: { value: String(newZoom) } } as React.ChangeEvent<HTMLSelectElement>);
-  }, []);
+  }, [setZoom]);
 
   const handleCursorColorChange = useCallback((color: CursorColorType) => {
     setCursorColor({ target: { value: color } } as React.ChangeEvent<HTMLSelectElement>);
-  }, []);
+  }, [setCursorColor]);
 
   const handleToolSelect = useCallback((tool: string) => {
     setSelectedTool(tool);
@@ -52,7 +52,6 @@ export default function NewPixelPage() {
 
   const handleColorSelect = useCallback((color: string) => {
     setSelectedColor(color);
-    setCursorColor({ target: { value: color as CursorColorType } } as React.ChangeEvent<HTMLSelectElement>);
   }, []);
 
   // 8. JSX
