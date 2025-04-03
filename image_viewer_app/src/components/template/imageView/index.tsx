@@ -3,7 +3,7 @@ import React, { memo } from 'react';
 import { fileInfoType, NONE } from "@/types/fileInfoType"
 import NoImageComponent from '@/components/molecule/noImageComponent';
 import ImageLayout from '@/components/organism/image/imageLayout';
-import { useDetailOpen } from '@/hooks/useDetailOpen';
+import { useDetailOpen } from '@/hooks/common/useDetailOpen';
 import DetailSubWindow from '@/components/organism/image/detailSubWindow';
 
 interface Props {

@@ -5,19 +5,19 @@ interface Option<T extends string | number> {
   readonly label: string;
 }
 
-interface PropertySelectProps<T extends string | number> {
-  label: string;
-  value: T;
-  options: readonly Option<T>[];
-  onChange: (value: T) => void;
+interface PixelPropertySelectProps<T extends string | number> {
+  readonly label: string;
+  readonly value: T;
+  readonly options: readonly Option<T>[];
+  readonly onChange: (value: T) => void;
 }
 
-export function PropertySelect<T extends string | number>({
+const PixelPropertySelect = <T extends string | number>({
   label,
   value,
   options,
   onChange,
-}: PropertySelectProps<T>) {
+}: Readonly<PixelPropertySelectProps<T>>) => {
   return (
     <div>
       <label className="block mb-2 text-white">{label}</label>
@@ -32,4 +32,6 @@ export function PropertySelect<T extends string | number>({
       </select>
     </div>
   );
-} 
+};
+
+export default PixelPropertySelect; 

@@ -1,5 +1,5 @@
 import { memo } from 'react';
-import PixelGrid from "@/components/organism/dot/PixelGrid";
+import PixelGrid from "@/components/organism/pixel/PixelGrid";
 import { CursorColorType, CanvasSizeType, ZoomLevelType } from "@/types/pixel";
 
 export type PixelEditorProps = {

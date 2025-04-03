@@ -1,10 +1,10 @@
 'use client';
 import { useCallback, useState, useMemo } from 'react';
-import { PixelEditor } from "@/components/organism/dot/PixelEditor";
-import { PixelEditorProperties } from "@/components/organism/dot/PixelEditorProperties";
-import { PixelTools } from "@/components/organism/dot/PixelTools";
-import { ColorPalette } from "@/components/organism/dot/ColorPalette";
-import { ActionButtons } from "@/components/organism/dot/ActionButtons";
+import { PixelEditor } from "@/components/organism/pixel/PixelEditor";
+import { PixelEditorProperties } from "@/components/organism/pixel/PixelEditorProperties";
+import { PixelTools } from "@/components/organism/pixel/PixelTools";
+import { ColorPalette } from "@/components/organism/pixel/ColorPalette";
+import { ActionButtons } from "@/components/organism/pixel/ActionButtons";
 import { useCanvasSize } from "@/hooks/pixel/useCanvasSize";
 import { useZoom } from "@/hooks/pixel/useZoom";
 import { useCursorColor } from "@/hooks/pixel/useCursorColor";

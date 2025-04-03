@@ -1,7 +1,6 @@
 import React from 'react';
-import { PropertySelect } from '@/components/molecule/dot/PropertySelect';
-import { CANVAS_SIZES, ZOOM_LEVELS, CURSOR_COLORS } from '@/types/pixel';
-import { CanvasSizeType, ZoomLevelType, CursorColorType } from '@/types/pixel';
+import { PropertySelect } from '@/components/molecule/propertySelect';
+import { CanvasSizeType, ZoomLevelType, CursorColorType, CANVAS_SIZES, ZOOM_LEVELS, CURSOR_COLORS } from '@/types/pixel';
 
 interface PixelEditorPropertiesProps {
   canvasSize: CanvasSizeType;

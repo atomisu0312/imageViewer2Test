@@ -1,4 +1,4 @@
-import NewPixelPage from '@/components/template/dot/NewPixelPage';
+import NewPixelPage from '@/components/template/pixel/NewPixelPage';
 
 export default function Page() {
   return <NewPixelPage />;
