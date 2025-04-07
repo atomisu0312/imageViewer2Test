@@ -8,7 +8,7 @@ interface PixelState {
 
 const createEmptyPixel = (): Pixel => ({
   isFilled: false,
-  color: 'black',
+  color: '#ffffff' as PixelColorType,
 });
 
 const createEmptyGrid = (size: number): PixelGrid => 
@@ -33,7 +33,7 @@ const pixelSlice = createSlice({
       if (state.pixels[row] && state.pixels[row][col] !== undefined) {
         state.pixels[row][col] = {
           isFilled: !state.pixels[row][col].isFilled,
-          color: 'black',
+          color: '#000000' as PixelColorType,
         };
       }
     },

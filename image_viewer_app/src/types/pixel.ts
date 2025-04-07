@@ -1,3 +1,5 @@
+import { Color } from "./color";
+
 /**
  * ピクセルエディタの数値設定項目の種類
  */
@@ -11,7 +13,7 @@ export type CursorColorType = 'blue' | 'red' | 'green';
 /**
  * ピクセルカラーの種類
  */
-export type PixelColorType = 'black';
+export type PixelColorType = Color;
 
 /**
  * キャンバスサイズの設定値
@@ -49,4 +51,4 @@ export interface Pixel {
   color: PixelColorType;
 }
 
-export type PixelGrid = Pixel[][]; 
+export type PixelGrid = Pixel[][];
