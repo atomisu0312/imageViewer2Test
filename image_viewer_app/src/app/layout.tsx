@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import Footer from "@/components/template/footer";
 import Header from "@/components/template/header";
+import ReduxProvider from "@/components/providers/ReduxProvider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -15,9 +16,11 @@ export default async function Layout({ children }: { children: React.ReactNode }
   return (
     <html lang="ja" suppressHydrationWarning>
       <body className={inter.className} suppressHydrationWarning>
-      <Header />
-      {children}
-      <Footer />
+        <ReduxProvider>
+          <Header />
+          {children}
+          <Footer />
+        </ReduxProvider>
       </body>
     </html>
   );

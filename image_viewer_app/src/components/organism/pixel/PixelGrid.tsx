@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useRef, useState, useMemo, useCallback, memo } from "react";
 import { CursorColorType } from "@/types/pixel";
+import { usePixel } from "@/hooks/common/usePixel";
 
 interface PixelGridProps {
   size: number;
@@ -10,35 +11,25 @@ interface PixelGridProps {
 
 const PixelGrid = memo(function PixelGrid({ size, zoom = 100, cursorColor = 'blue' }: PixelGridProps) {
   console.log('PixelGrid');
-  // キャンバスのサイズを512pxに固定
   const BASE = 512;
-   
-  // 1. pixelsの初期化
-  const [pixels, setPixels] = useState<boolean[][]>(() => 
-    Array(size).fill(null).map(() => Array(size).fill(false))
-  );
+  
+  const { pixels, togglePixelState, updateSize, resetPixelState } = usePixel();
   const [isDragging, setIsDragging] = useState(false);
+  const [initialized, setInitialized] = useState(false);
+  const prevSizeRef = useRef(size);
 
-  // 2. Ref宣言
   const lastCellRef = useRef<{ row: number; col: number } | null>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  // 3. メモ化された値
   const cellSize = useMemo(() => BASE / size, [size]);
   
-  // カーソルのURLをメモ化
   const cursorUrl = useMemo(() => {
     if (cursorColor === 'blue') return `url('/cursor/pen.svg')`;
     return `url('/cursor/colors/pen-${cursorColor}.svg')`;
   }, [cursorColor]);
 
-  // 4. メモ化されたコールバック
   const drawPixel = useCallback((row: number, col: number) => {
-    setPixels(prev => {
-      const newPixels = prev.map(row => [...row]);
-      newPixels[row][col] = !newPixels[row][col];
-      return newPixels;
-    });
+    togglePixelState(row, col);
   }, []);
 
   const getCellCoordinates = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
@@ -60,10 +51,21 @@ const PixelGrid = memo(function PixelGrid({ size, zoom = 100, cursorColor = 'blu
     return null;
   }, [cellSize, size]);
 
-  // 6. 副作用
+  // サイズ変更時の初期化処理
   useEffect(() => {
-    setPixels(Array(size).fill(null).map(() => Array(size).fill(false)));
+    if (prevSizeRef.current !== size) {
+      setInitialized(false);
+      prevSizeRef.current = size;
+    }
   }, [size]);
+
+  // 初期化処理
+  useEffect(() => {
+    if (!initialized) {
+      updateSize(size);
+      setInitialized(true);
+    }
+  }, [size, initialized]);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -79,11 +81,11 @@ const PixelGrid = memo(function PixelGrid({ size, zoom = 100, cursorColor = 'blu
     ctx.lineWidth = 0.2;
 
     pixels.forEach((row, rowIndex) => {
-      row.forEach((cell, colIndex) => {
+      row.forEach((pixel, colIndex) => {
         const x = colIndex * cellSize;
         const y = rowIndex * cellSize;
 
-        ctx.fillStyle = cell ? '#000000' : '#ffffff';
+        ctx.fillStyle = pixel.isFilled ? '#000000' : '#ffffff';
         ctx.fillRect(x, y, cellSize, cellSize);
         ctx.strokeRect(x, y, cellSize, cellSize);
       });

@@ -9,6 +9,11 @@ export type NumericSettingType = 'canvasSize' | 'zoom';
 export type CursorColorType = 'blue' | 'red' | 'green';
 
 /**
+ * ピクセルカラーの種類
+ */
+export type PixelColorType = 'black';
+
+/**
  * キャンバスサイズの設定値
  */
 export const CANVAS_SIZE_VALUES = [8, 16, 32, 64] as const;
@@ -37,4 +42,11 @@ export const CURSOR_COLORS: { value: CursorColorType; label: string }[] = [
   { value: 'blue', label: '青' },
   { value: 'red', label: '赤' },
   { value: 'green', label: '緑' },
-] as const; 
+] as const;
+
+export interface Pixel {
+  isFilled: boolean;
+  color: PixelColorType;
+}
+
+export type PixelGrid = Pixel[][]; 
