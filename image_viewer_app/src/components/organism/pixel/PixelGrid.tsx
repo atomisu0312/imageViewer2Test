@@ -1,6 +1,6 @@
 'use client';
 import { useEffect, useRef, useState, useMemo, useCallback, memo } from "react";
-import { CursorColorType } from "@/types/pixel";
+import { CursorColorType, PixelColorType, newPixelColor } from "@/types/pixel";
 import { usePixel } from "@/hooks/common/usePixel";
 
 interface PixelGridProps {
@@ -28,8 +28,9 @@ const PixelGrid = memo(function PixelGrid({ size, zoom = 100, cursorColor = 'blu
     return `url('/cursor/colors/pen-${cursorColor}.svg')`;
   }, [cursorColor]);
 
-  // 透明なパターンの作成
-  const transparentPattern = useMemo(() => {
+  const patternRef = useRef<CanvasPattern | null>(null);
+
+  useEffect(() => {
     const patternCanvas = document.createElement('canvas');
     patternCanvas.width = 8;
     patternCanvas.height = 8;
@@ -41,11 +42,17 @@ const PixelGrid = memo(function PixelGrid({ size, zoom = 100, cursorColor = 'blu
       patternCtx.fillRect(0, 0, 4, 4);
       patternCtx.fillRect(4, 4, 4, 4);
     }
-    return patternCanvas;
+    const canvas = canvasRef.current;
+    if (canvas) {
+      const ctx = canvas.getContext('2d');
+      if (ctx) {
+        patternRef.current = ctx.createPattern(patternCanvas, 'repeat');
+      }
+    }
   }, []);
 
-  const drawPixel = useCallback((row: number, col: number) => {
-    togglePixelState(row, col);
+  const drawPixel = useCallback((row: number, col: number, color: PixelColorType) => {
+    togglePixelState(row, col, color);
   }, []);
 
   const getCellCoordinates = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
@@ -96,19 +103,24 @@ const PixelGrid = memo(function PixelGrid({ size, zoom = 100, cursorColor = 'blu
     ctx.strokeStyle = '#000000';
     ctx.lineWidth = 0.2;
 
-    const pattern = ctx.createPattern(transparentPattern, 'repeat');
-
     pixels.forEach((row, rowIndex) => {
       row.forEach((pixel, colIndex) => {
         const x = colIndex * cellSize;
         const y = rowIndex * cellSize;
 
-        ctx.fillStyle = pixel.isFilled ? pixel.color : pattern;
-        ctx.fillRect(x, y, cellSize, cellSize);
+        if (!pixel.isFilled) {
+          if (patternRef.current) {
+            ctx.fillStyle = patternRef.current;
+            ctx.fillRect(x, y, cellSize, cellSize);
+          }
+        } else {
+          ctx.fillStyle = pixel.color;
+          ctx.fillRect(x, y, cellSize, cellSize);
+        }
         ctx.strokeRect(x, y, cellSize, cellSize);
       });
     });
-  }, [pixels, cellSize, transparentPattern]);
+  }, [pixels, cellSize]);
 
   // 7. イベントハンドラ
   const handleCanvasMouseMove = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
@@ -116,7 +128,7 @@ const PixelGrid = memo(function PixelGrid({ size, zoom = 100, cursorColor = 'blu
     if (coords) {
       if (isDragging && 
           (lastCellRef.current?.row !== coords.row || lastCellRef.current?.col !== coords.col)) {
-        drawPixel(coords.row, coords.col);
+        drawPixel(coords.row, coords.col, newPixelColor('#0000ff'));
         lastCellRef.current = coords;
       }
     }
@@ -127,7 +139,7 @@ const PixelGrid = memo(function PixelGrid({ size, zoom = 100, cursorColor = 'blu
       setIsDragging(true);
       const coords = getCellCoordinates(e);
       if (coords) {
-        drawPixel(coords.row, coords.col);
+        drawPixel(coords.row, coords.col, newPixelColor('#0000ff'));
         lastCellRef.current = coords;
       }
     }

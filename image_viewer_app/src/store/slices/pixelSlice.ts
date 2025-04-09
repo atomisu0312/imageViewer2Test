@@ -28,12 +28,12 @@ const pixelSlice = createSlice({
     setPixels: (state, action: PayloadAction<PixelGrid>) => {
       state.pixels = action.payload;
     },
-    togglePixel: (state, action: PayloadAction<{ row: number; col: number }>) => {
-      const { row, col } = action.payload;
+    togglePixel: (state, action: PayloadAction<{ row: number; col: number; color: PixelColorType }>) => {
+      const { row, col, color } = action.payload;
       if (state.pixels[row] && state.pixels[row][col] !== undefined) {
         state.pixels[row][col] = {
           isFilled: !state.pixels[row][col].isFilled,
-          color: '#000000' as PixelColorType,
+          color: color as PixelColorType,
         };
       }
     },

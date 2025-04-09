@@ -15,6 +15,12 @@ export type CursorColorType = 'blue' | 'red' | 'green';
  */
 export type PixelColorType = Color;
 
+export const newPixelColor = <T extends string>(
+  w: T
+): Color => {
+  return w as string as Color;
+};
+
 /**
  * キャンバスサイズの設定値
  */
