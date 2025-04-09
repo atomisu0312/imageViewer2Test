@@ -28,6 +28,22 @@ const PixelGrid = memo(function PixelGrid({ size, zoom = 100, cursorColor = 'blu
     return `url('/cursor/colors/pen-${cursorColor}.svg')`;
   }, [cursorColor]);
 
+  // 透明なパターンの作成
+  const transparentPattern = useMemo(() => {
+    const patternCanvas = document.createElement('canvas');
+    patternCanvas.width = 8;
+    patternCanvas.height = 8;
+    const patternCtx = patternCanvas.getContext('2d');
+    if (patternCtx) {
+      patternCtx.fillStyle = '#ffffff';
+      patternCtx.fillRect(0, 0, 8, 8);
+      patternCtx.fillStyle = '#e0e0e0';
+      patternCtx.fillRect(0, 0, 4, 4);
+      patternCtx.fillRect(4, 4, 4, 4);
+    }
+    return patternCanvas;
+  }, []);
+
   const drawPixel = useCallback((row: number, col: number) => {
     togglePixelState(row, col);
   }, []);
@@ -80,17 +96,19 @@ const PixelGrid = memo(function PixelGrid({ size, zoom = 100, cursorColor = 'blu
     ctx.strokeStyle = '#000000';
     ctx.lineWidth = 0.2;
 
+    const pattern = ctx.createPattern(transparentPattern, 'repeat');
+
     pixels.forEach((row, rowIndex) => {
       row.forEach((pixel, colIndex) => {
         const x = colIndex * cellSize;
         const y = rowIndex * cellSize;
 
-        ctx.fillStyle = pixel.isFilled ? '#000000' : '#ffffff';
+        ctx.fillStyle = pixel.isFilled ? pixel.color : pattern;
         ctx.fillRect(x, y, cellSize, cellSize);
         ctx.strokeRect(x, y, cellSize, cellSize);
       });
     });
-  }, [pixels, cellSize]);
+  }, [pixels, cellSize, transparentPattern]);
 
   // 7. イベントハンドラ
   const handleCanvasMouseMove = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
