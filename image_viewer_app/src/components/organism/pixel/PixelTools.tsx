@@ -1,29 +1,24 @@
 import React, { memo } from 'react';
-
+import { TOOLS, ToolType } from '@/types/tool';
 interface PixelToolsProps {
-  readonly onToolSelect: (tool: string) => void;
-  readonly selectedTool: string;
+  readonly onToolSelect: (tool: ToolType) => void;
+  readonly selectedTool: ToolType;
 }
 
 const PixelTools = memo(function PixelTools({ onToolSelect, selectedTool }: PixelToolsProps) {
-  const tools = [
-    { id: 'pen', name: 'ペン' },
-    { id: 'eraser', name: '消しゴム' },
-    { id: 'fill', name: '塗りつぶし' },
-    { id: 'eyedropper', name: 'スポイト' },
-  ];
+  const tools = TOOLS;
 
   return (
     <div className="text-white">
       <h2 className="text-xl font-semibold mb-2">ツール</h2>
-      <div className="grid grid-cols-2 gap-2">
+      <div className="grid grid-cols-3 gap-2">
         {tools.map((tool) => (
           <button
             key={tool.id}
             className={`p-2 border rounded ${
-              selectedTool === tool.id ? 'bg-blue-600' : ''
+              selectedTool.id === tool.id ? 'bg-blue-600' : ''
             }`}
-            onClick={() => onToolSelect(tool.id)}
+            onClick={() => onToolSelect(tool)}
           >
             {tool.name}
           </button>

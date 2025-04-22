@@ -1,6 +1,6 @@
 'use client';
 import { useCallback, useState, useMemo } from 'react';
-import { PixelEditor } from "@/components/organism/pixel/PixelEditor";
+import { PixelEditorMain } from "@/components/organism/pixel/PixelEditorMain";
 import { PixelEditorProperties } from "@/components/organism/pixel/PixelEditorProperties";
 import PixelTools from "@/components/organism/pixel/PixelTools";
 import { ColorPalette } from "@/components/organism/pixel/ColorPalette";
@@ -9,10 +9,11 @@ import { useCanvasSize } from "@/hooks/pixel/useCanvasSize";
 import { useZoom } from "@/hooks/pixel/useZoom";
 import { useCursorColor } from "@/hooks/pixel/useCursorColor";
 import { CursorColorType } from "@/types/pixel";
+import { TOOLS, ToolType } from '@/types/tool';
 
 export default function NewPixelPage() {
   // 1. State宣言
-  const [selectedTool, setSelectedTool] = useState('pen');
+  const [selectedTool, setSelectedTool] = useState<ToolType>(TOOLS[0]);
   const [selectedColor, setSelectedColor] = useState('#000000');
 
   // 3. メモ化された値
@@ -46,7 +47,7 @@ export default function NewPixelPage() {
     setCursorColor({ target: { value: color } } as React.ChangeEvent<HTMLSelectElement>);
   }, [setCursorColor]);
 
-  const handleToolSelect = useCallback((tool: string) => {
+  const handleToolSelect = useCallback((tool: ToolType) => {
     setSelectedTool(tool);
   }, []);
 
@@ -61,7 +62,7 @@ export default function NewPixelPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         {/* ドット絵作成エリア */}
         <div className="lg:col-span-2">
-          <PixelEditor
+          <PixelEditorMain
             canvasSize={canvasSize}
             zoom={zoom}
             cursorColor={cursorColor}
