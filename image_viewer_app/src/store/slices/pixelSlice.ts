@@ -32,7 +32,7 @@ const pixelSlice = createSlice({
       const { row, col, color } = action.payload;
       if (state.pixels[row] && state.pixels[row][col] !== undefined) {
         state.pixels[row][col] = {
-          isFilled: !state.pixels[row][col].isFilled,
+          isFilled: true,
           color: color as PixelColorType,
         };
       }

@@ -8,16 +8,15 @@ import { ActionButtons } from "@/components/organism/pixel/ActionButtons";
 import { useCanvasSize } from "@/hooks/pixel/useCanvasSize";
 import { useZoom } from "@/hooks/pixel/useZoom";
 import { useCursorColor } from "@/hooks/pixel/useCursorColor";
-import { CursorColorType } from "@/types/pixel";
+import { CursorColorType, PixelColorType, newPixelColor } from "@/types/pixel";
 import { TOOLS, ToolType } from '@/types/tool';
+import { color } from '@/types/color';
 
 export default function NewPixelPage() {
   // 1. State宣言
   const [selectedTool, setSelectedTool] = useState<ToolType>(TOOLS[0]);
-  const [selectedColor, setSelectedColor] = useState('#000000');
+  const [selectedColor, setSelectedColor] = useState<PixelColorType>(newPixelColor('#000000'));
 
-  // 3. メモ化された値
-  const colors = useMemo(() => Array(32).fill('#000000'), []); // 仮の色情報（後で実際の色を追加）
 
   // 5. カスタムフック
   const { value: canvasSize, onChange: setCanvasSize } = useCanvasSize();
@@ -51,7 +50,7 @@ export default function NewPixelPage() {
     setSelectedTool(tool);
   }, []);
 
-  const handleColorSelect = useCallback((color: string) => {
+  const handleColorSelect = useCallback((color: PixelColorType) => {
     setSelectedColor(color);
   }, []);
 
@@ -66,6 +65,7 @@ export default function NewPixelPage() {
             canvasSize={canvasSize}
             zoom={zoom}
             cursorColor={cursorColor}
+            selectedColor={selectedColor}
           />
           <PixelEditorProperties
             canvasSize={canvasSize}
@@ -84,7 +84,6 @@ export default function NewPixelPage() {
             onToolSelect={handleToolSelect}
           />
           <ColorPalette
-            colors={colors}
             selectedColor={selectedColor}
             onColorSelect={handleColorSelect}
           />

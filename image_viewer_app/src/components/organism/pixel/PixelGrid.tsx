@@ -2,14 +2,16 @@
 import { useEffect, useRef, useState, useMemo, useCallback, memo } from "react";
 import { CursorColorType, PixelColorType, newPixelColor } from "@/types/pixel";
 import { usePixel } from "@/hooks/common/usePixel";
+import { Color } from "@/types/color";
 
 interface PixelGridProps {
   size: number;
   zoom?: number;
   cursorColor?: CursorColorType;
+  selectedColor: PixelColorType;
 }
 
-const PixelGrid = memo(function PixelGrid({ size, zoom = 100, cursorColor = 'blue' }: PixelGridProps) {
+const PixelGrid = memo(function PixelGrid({ size, zoom = 100, cursorColor = 'blue', selectedColor }: PixelGridProps) {
   const BASE = 512;
   
   const { pixels, togglePixelState, updateSize } = usePixel();
@@ -127,22 +129,22 @@ const PixelGrid = memo(function PixelGrid({ size, zoom = 100, cursorColor = 'blu
     if (coords) {
       if (isDragging && 
           (lastCellRef.current?.row !== coords.row || lastCellRef.current?.col !== coords.col)) {
-        drawPixel(coords.row, coords.col, newPixelColor('#0000ff'));
+        drawPixel(coords.row, coords.col, newPixelColor(selectedColor));
         lastCellRef.current = coords;
       }
     }
-  }, [isDragging, getCellCoordinates, drawPixel]);
+  }, [isDragging, getCellCoordinates, drawPixel, selectedColor]);
 
   const handleCanvasMouseDown = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
     if (e.button === 0) {
       setIsDragging(true);
       const coords = getCellCoordinates(e);
       if (coords) {
-        drawPixel(coords.row, coords.col, newPixelColor('#0000ff'));
+        drawPixel(coords.row, coords.col, newPixelColor(selectedColor));
         lastCellRef.current = coords;
       }
     }
-  }, [getCellCoordinates, drawPixel]);
+  }, [getCellCoordinates, drawPixel, selectedColor]);
 
   const handleCanvasMouseUp = useCallback(() => {
     setIsDragging(false);

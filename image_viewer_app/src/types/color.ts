@@ -45,3 +45,17 @@ export const color = <T extends string>(
 ): Color => {
   return w as string as Color;
 };
+
+export const defaultColorPalette: Color[] = [
+  color("#000000"),
+  color("#FFFFFF"),
+  color("#FF0000"),
+  color("#00FF00"),
+  color("#0000FF"),
+  color("#FF00FF"),
+  color("#FFFF00"),
+  color("#00FFFF"),
+  color("#FFA500"),
+  color("#800080"),
+  color("#008000"),
+] as const;
