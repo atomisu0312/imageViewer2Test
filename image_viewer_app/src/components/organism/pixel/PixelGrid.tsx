@@ -10,10 +10,9 @@ interface PixelGridProps {
 }
 
 const PixelGrid = memo(function PixelGrid({ size, zoom = 100, cursorColor = 'blue' }: PixelGridProps) {
-  console.log('PixelGrid');
   const BASE = 512;
   
-  const { pixels, togglePixelState, updateSize, resetPixelState } = usePixel();
+  const { pixels, togglePixelState, updateSize } = usePixel();
   const [isDragging, setIsDragging] = useState(false);
   const [initialized, setInitialized] = useState(false);
   const prevSizeRef = useRef(size);

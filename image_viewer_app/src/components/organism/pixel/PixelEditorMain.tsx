@@ -8,7 +8,7 @@ export type PixelEditorProps = {
   cursorColor: CursorColorType;
 };
 
-export const PixelEditor = memo(function PixelEditor({
+export const PixelEditorMain = memo(function PixelEditor({
   canvasSize,
   zoom,
   cursorColor,
