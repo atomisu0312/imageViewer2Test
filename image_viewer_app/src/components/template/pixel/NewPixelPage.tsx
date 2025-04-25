@@ -66,6 +66,7 @@ export default function NewPixelPage() {
             zoom={zoom}
             cursorColor={cursorColor}
             selectedColor={selectedColor}
+            selectedTool={selectedTool}
           />
           <PixelEditorProperties
             canvasSize={canvasSize}

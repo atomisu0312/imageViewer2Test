@@ -37,6 +37,15 @@ const pixelSlice = createSlice({
         };
       }
     },
+    erasePixel: (state, action: PayloadAction<{ row: number; col: number }>) => {
+      const { row, col } = action.payload;
+      if (state.pixels[row] && state.pixels[row][col] !== undefined) {
+        state.pixels[row][col] = {
+          isFilled: false,
+          color: '#ffffff' as PixelColorType,
+        };
+      }
+    },
     setSize: (state, action: PayloadAction<number>) => {
       state.size = action.payload;
       state.pixels = createEmptyGrid(action.payload);
@@ -47,5 +56,5 @@ const pixelSlice = createSlice({
   },
 });
 
-export const { setPixels, togglePixel, setSize, resetPixels } = pixelSlice.actions;
+export const { setPixels, togglePixel, setSize, resetPixels, erasePixel } = pixelSlice.actions;
 export default pixelSlice.reducer; 

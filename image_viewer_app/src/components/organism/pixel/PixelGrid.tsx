@@ -3,18 +3,20 @@ import { useEffect, useRef, useState, useMemo, useCallback, memo } from "react";
 import { CursorColorType, PixelColorType, newPixelColor } from "@/types/pixel";
 import { usePixel } from "@/hooks/common/usePixel";
 import { Color } from "@/types/color";
+import { ToolType } from "@/types/tool";
 
 interface PixelGridProps {
   size: number;
   zoom?: number;
   cursorColor?: CursorColorType;
   selectedColor: PixelColorType;
+  selectedTool: ToolType;
 }
 
-const PixelGrid = memo(function PixelGrid({ size, zoom = 100, cursorColor = 'blue', selectedColor }: PixelGridProps) {
+const PixelGrid = memo(function PixelGrid({ size, zoom = 100, cursorColor = 'blue', selectedColor, selectedTool }: PixelGridProps) {
   const BASE = 512;
   
-  const { pixels, togglePixelState, updateSize } = usePixel();
+  const { pixels, togglePixelState, erasePixelState, updateSize } = usePixel();
   const [isDragging, setIsDragging] = useState(false);
   const [initialized, setInitialized] = useState(false);
   const prevSizeRef = useRef(size);
@@ -25,9 +27,9 @@ const PixelGrid = memo(function PixelGrid({ size, zoom = 100, cursorColor = 'blu
   const cellSize = useMemo(() => BASE / size, [size]);
   
   const cursorUrl = useMemo(() => {
-    if (cursorColor === 'blue') return `url('/cursor/pen.svg')`;
+    if (selectedTool.id === 'eraser') return `url('/cursor/eraser.svg')`;
     return `url('/cursor/colors/pen-${cursorColor}.svg')`;
-  }, [cursorColor]);
+  }, [cursorColor, selectedTool]);
 
   const patternRef = useRef<CanvasPattern | null>(null);
 
@@ -53,8 +55,12 @@ const PixelGrid = memo(function PixelGrid({ size, zoom = 100, cursorColor = 'blu
   }, []);
 
   const drawPixel = useCallback((row: number, col: number, color: PixelColorType) => {
-    togglePixelState(row, col, color);
-  }, []);
+    if (selectedTool.id === 'eraser') {
+      erasePixelState(row, col);
+    } else {
+      togglePixelState(row, col, color);
+    }
+  }, [selectedTool, togglePixelState, erasePixelState]);
 
   const getCellCoordinates = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
     const canvas = canvasRef.current;

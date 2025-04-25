@@ -1,6 +1,6 @@
 import { useSelector, useDispatch } from 'react-redux';
 import { RootState } from '@/store/store';
-import { togglePixel, setSize, resetPixels, setPixels } from '@/store/slices/pixelSlice';
+import { togglePixel, setSize, resetPixels, setPixels, erasePixel } from '@/store/slices/pixelSlice';
 import { PixelColorType, PixelGrid } from '@/types/pixel';
 
 export const usePixel = () => {
@@ -10,6 +10,10 @@ export const usePixel = () => {
 
   const togglePixelState = (row: number, col: number, color: PixelColorType) => {
     dispatch(togglePixel({ row, col, color }));
+  };
+
+  const erasePixelState = (row: number, col: number) => {
+    dispatch(erasePixel({ row, col }));
   };
 
   const updateSize = (newSize: number) => {
@@ -28,6 +32,7 @@ export const usePixel = () => {
     pixels,
     size,
     togglePixelState,
+    erasePixelState,
     updateSize,
     resetPixelState,
     updatePixels,
