@@ -13,7 +13,14 @@ export const ColorPalette: React.FC<ColorPaletteProps> = ({  onColorSelect, sele
   const [paletteColors, setPaletteColors] = useState(defaultColorPalette);
 
   const handleAddColorPalette = (color: Color) => {
+    if (paletteColors.includes(color)) {
+      return;
+    }
     setPaletteColors([...paletteColors, color]);
+  };
+
+  const handleDeleteColorPalette = (color: Color) => {
+    setPaletteColors(paletteColors.filter((c) => c !== color));
   };
 
   return (
@@ -25,6 +32,7 @@ export const ColorPalette: React.FC<ColorPaletteProps> = ({  onColorSelect, sele
             key={`color-${i}`}
             onClick={() => onColorSelect(color)} 
             color={color} 
+            onDelete={() => handleDeleteColorPalette(color)}
           />
         ))}
         <AddColorPaletteUnit onClick={handleAddColorPalette} />

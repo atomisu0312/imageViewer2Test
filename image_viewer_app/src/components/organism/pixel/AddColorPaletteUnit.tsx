@@ -21,7 +21,7 @@ const AddColorPaletteUnit: React.FC<Props> = ({
       <ColorPicker onChange={handleColorChange} />
       <div className="flex justify-center gap-2">
         <button 
-          className="text-white text-lg"
+          className="text-lg text-green-500"
           onClick={() => onClick(selectedColor)}
         >
           ADD

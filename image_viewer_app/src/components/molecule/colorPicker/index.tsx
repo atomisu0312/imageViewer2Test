@@ -28,7 +28,7 @@ const ColorPicker: React.FC<ColorPickerProps> = ({
   };
 
   return (
-    <div className="aspect-square border rounded">
+    <div className="aspect-square border border-green-500 rounded">
       <div 
         className="w-full h-full rounded cursor-pointer"
         onClick={handleClick}
