@@ -57,4 +57,4 @@ const pixelSlice = createSlice({
 });
 
 export const { setPixels, togglePixel, setSize, resetPixels, erasePixel } = pixelSlice.actions;
-export default pixelSlice.reducer; 
+export const pixelReducer = pixelSlice.reducer;

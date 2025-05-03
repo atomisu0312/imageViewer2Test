@@ -2,9 +2,7 @@
 import { useEffect, useRef, useState, useMemo, useCallback, memo } from "react";
 import { CursorColorType, PixelColorType, newPixelColor } from "@/types/pixel";
 import { usePixel } from "@/hooks/common/usePixel";
-import { Color } from "@/types/color";
 import { ToolType } from "@/types/tool";
-
 interface PixelGridProps {
   size: number;
   zoom?: number;
