@@ -14,9 +14,8 @@ const ColorPaletteUnit: React.FC<Props> = ({
   return (
     <div className="grid grid-cols-1 gap-1">
       <ColorSquare onClick={onClick} color={color} />
-      <div className="flex justify-between gap-2">
+      <div className="flex justify-center gap-2">
         <button className="text-white text-lg">❌</button>
-        <button className="text-white text-lg">🖊️</button>
       </div>
     </div>
   );

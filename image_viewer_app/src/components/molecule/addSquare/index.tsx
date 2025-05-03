@@ -1,20 +1,21 @@
+'use client';
 import { Color } from '@/types/color';
 import React from 'react';
+import ColorPicker from '../colorPicker';
 
 interface Props {
-  onClick?: () => void;
+  onClick?: (color: string) => void;
 }
 
 const AddSquare: React.FC<Props> = ({
   onClick,
 }) => {
   return (
-    <button
-      onClick={onClick}
-      className="aspect-square border rounded-full"
-    >
-      <span className="text-white text-lg">+</span>
-    </button>
+    <div className="aspect-square border flex items-center justify-center">
+      <div className="w-full h-full flex items-center justify-center">
+        <ColorPicker onChange={onClick} />
+      </div>
+    </div>
   );
 };
 
