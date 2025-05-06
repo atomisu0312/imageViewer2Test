@@ -155,7 +155,8 @@ const PixelGrid = memo(function PixelGrid({ size, zoom = 100, cursorColor = 'blu
   }, []);
 
   // 8. JSX
-  return (    
+  return ( 
+    <div className="flex justify-between items-center min-h-[512px] bg-slate-900 rounded-lg">
     <div className="flex justify-center overflow-auto" style={{ width: '100%', height: '100%' }}>
       <div 
         style={{ 
@@ -180,6 +181,7 @@ const PixelGrid = memo(function PixelGrid({ size, zoom = 100, cursorColor = 'blu
           }}
         />
       </div>
+    </div>
     </div>
   );
 });

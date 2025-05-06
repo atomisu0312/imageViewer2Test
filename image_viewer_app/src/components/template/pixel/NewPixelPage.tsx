@@ -1,16 +1,16 @@
 'use client';
 import { useCallback, useState, useMemo } from 'react';
-import { PixelEditorMain } from "@/components/organism/pixel/PixelEditorMain";
-import { PixelEditorProperties } from "@/components/organism/pixel/PixelEditorProperties";
-import PixelTools from "@/components/organism/pixel/PixelTools";
-import { ColorPalette } from "@/components/organism/pixel/ColorPalette";
-import { ActionButtons } from "@/components/organism/pixel/ActionButtons";
+import { PixelEditorProperties } from "@/components/organism/pixel/properties/PixelEditorProperties";
+import PixelTools from "@/components/organism/pixel/tool/PixelTools";
+import { ColorPalette } from "@/components/organism/pixel/palette/ColorPalette";
+import { ActionButtons } from "@/components/organism/pixel/action/ActionButtons";
 import { useCanvasSize } from "@/hooks/pixel/useCanvasSize";
 import { useZoom } from "@/hooks/pixel/useZoom";
 import { useCursorColor } from "@/hooks/pixel/useCursorColor";
 import { CursorColorType, PixelColorType, newPixelColor } from "@/types/pixel";
 import { TOOLS, ToolType } from '@/types/tool';
 import { color } from '@/types/color';
+import PixelGrid from '@/components/organism/pixel/main/PixelGrid';
 
 export default function NewPixelPage() {
   // 1. State宣言
@@ -61,13 +61,16 @@ export default function NewPixelPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         {/* ドット絵作成エリア */}
         <div className="lg:col-span-2">
-          <PixelEditorMain
-            canvasSize={canvasSize}
-            zoom={zoom}
-            cursorColor={cursorColor}
-            selectedColor={selectedColor}
-            selectedTool={selectedTool}
-          />
+          <div className="border rounded-lg bg-slate-800 py-2">
+            <h1 className="text-center text-3xl text-white mb-4">キャンバス：{canvasSize}x{canvasSize}</h1>
+            <PixelGrid 
+                size={canvasSize} 
+                zoom={zoom} 
+                cursorColor={cursorColor}
+                selectedColor={selectedColor}
+                selectedTool={selectedTool}
+            />
+          </div>
           <PixelEditorProperties
             canvasSize={canvasSize}
             zoom={zoom}

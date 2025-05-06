@@ -31,4 +31,4 @@ const AddColorPaletteUnit: React.FC<Props> = ({
   );
 };
 
-export default AddColorPaletteUnit;
+export default React.memo(AddColorPaletteUnit);
