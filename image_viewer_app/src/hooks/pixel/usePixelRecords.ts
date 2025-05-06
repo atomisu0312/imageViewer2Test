@@ -1,47 +1,25 @@
 import { useState } from 'react';
 import { PixelRecord } from '@/types/pixelRecord';
-import { PixelGrid } from '@/types/pixel';
-
-class Stack<T> {
-  private data: T[];
-
-  constructor() {
-    this.data = [];
-  }
-
-  push(record: T) {
-    this.data.push(record);
-  }
-
-  pop(): T | undefined {
-    return this.data.pop();
-  }
-
-  peek(): T | undefined {
-    return this.data[this.data.length - 1];
-  }
-
-  clear() {
-    this.data = [];
-  }
-
-  get length(): number {
-    return this.data.length;
-  }
-}
+import { usePixel } from '@/hooks/common/usePixel';
+import { Stack } from '@/lib/util/Stack';
 
 function usePixelRecords() {
   const [historyStack] = useState(() => new Stack<PixelRecord[]>());
+  const { togglePixelState, erasePixelState } = usePixel();
 
   const addPixelRecord = (pixelRecord: PixelRecord[]) => {
     historyStack.push(pixelRecord);
   };
 
-  const restoreFromHistory = (pixels: PixelGrid) => {
+  const restoreFromHistory = () => {
     const records = historyStack.pop();
     if (records) {
       records.forEach(record => {
-        pixels[record.row][record.col] = record.pixel;
+        if (record.pixel.isFilled) {
+          togglePixelState(record.row, record.col, record.pixel.color);
+        } else {
+          erasePixelState(record.row, record.col);
+        }
       });
     }
   };

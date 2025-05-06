@@ -11,15 +11,16 @@ import { CursorColorType, PixelColorType, newPixelColor } from "@/types/pixel";
 import { TOOLS, ToolType } from '@/types/tool';
 import PixelGrid from '@/components/organism/pixel/main/PixelGrid';
 import EditorHeader from '@/components/organism/pixel/editorHeader/EditorHeader';
-import { usePixel } from '@/hooks/common/usePixel';
+import usePixelRecords from '@/hooks/pixel/usePixelRecords';
 
-const OUTPUT_SIZE = 1024; // 出力画像のサイズ
 
 export default function NewPixelPage() {
   // 1. State宣言
   const [selectedTool, setSelectedTool] = useState<ToolType>(TOOLS[0]);
   const [selectedColor, setSelectedColor] = useState<PixelColorType>(newPixelColor('#000000'));
-  // 5. カスタムフック
+  const { addPixelRecord, restoreFromHistory } = usePixelRecords();
+
+  // 2. カスタムフック
   const { value: canvasSize, onChange: setCanvasSize } = useCanvasSize();
   const { value: zoom, onChange: setZoom } = useZoom();
   const { value: cursorColor, onChange: setCursorColor } = useCursorColor();
@@ -52,13 +53,14 @@ export default function NewPixelPage() {
         {/* ドット絵作成エリア */}
         <div className="lg:col-span-2">
           <div className="border rounded-lg bg-slate-800 my-2">
-            <EditorHeader canvasSize={canvasSize} />
+            <EditorHeader canvasSize={canvasSize} onUndo={restoreFromHistory} />
             <PixelGrid 
                 size={canvasSize} 
                 zoom={zoom} 
                 cursorColor={cursorColor}
                 selectedColor={selectedColor}
                 selectedTool={selectedTool}
+                addPixelRecord={addPixelRecord}
             />
           </div>
           <PixelEditorProperties
