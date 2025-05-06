@@ -5,6 +5,7 @@ import { useCanvasDraw } from "@/hooks/pixel/useCanvasDraw";
 import { ToolType } from "@/types/tool";
 import { usePixel } from "@/hooks/common/usePixel";
 import { PixelRecord } from "@/types/pixelRecord";
+import { usePixelHistory } from "@/hooks/pixel/usePixelHistory";
 
 interface PixelGridProps {
   size: number;
@@ -22,7 +23,7 @@ const PixelGrid = memo(function PixelGrid({
   const { canvasRef, CANVAS_BASE, getCellCoordinates } = useCanvasDraw(size, pixels);
   const [isDragging, setIsDragging] = useState(false);
   const [initialized, setInitialized] = useState(false);
-  const [tmpHistory, setTmpHistory] = useState<PixelRecord[]>([]);
+  const { addTmpHistoryRecord, rollUpHistoryRecord } = usePixelHistory({ addPixelRecord });
 
   // 最後にクリックしたセルの座標（再レンダリングされると困るのでRefとして定義）
   const lastCellRef = useRef<{ row: number; col: number } | null>(null);
@@ -33,28 +34,6 @@ const PixelGrid = memo(function PixelGrid({
     return `url('/cursor/colors/pen-${cursorColor}.svg')`;
   }, [cursorColor, selectedTool]);
   
-  /** 直近の変更をリストとしてまとめておく */
-  const addTmpHistoryRecord = useCallback((row: number, col: number, pixel: Pixel) => {
-    setTmpHistory(prev => {
-      // historyの中に同じ座標のものがある場合には保存しない
-      const hasSameCoordinate = prev.some(record => record.row === row && record.col === col);
-      if (hasSameCoordinate) {
-        return prev;
-      }
-      return [...prev, {
-        row,
-        col,
-        pixel: { ...pixel }
-      }];
-    });
-  }, []);
-
-  /** 直近の変更をまとめて、履歴として保存する関数、この際一時履歴は空にしておく */
-  const addHistoryRecord = useCallback(() => {
-    addPixelRecord(tmpHistory);
-    setTmpHistory([]);
-  }, [tmpHistory, addPixelRecord]);
-
   /** ピクセルのStateを変更 */
   const changePixelState = useCallback((row: number, col: number, color: PixelColorType) => {
     if (selectedTool.id === 'eraser') {
@@ -63,6 +42,17 @@ const PixelGrid = memo(function PixelGrid({
       togglePixelState(row, col, color);
     }
   }, [selectedTool, togglePixelState, erasePixelState]);
+
+  /** ピクセルのStateを変更 */
+  const updatePixel = useCallback((coords) => {
+    if (selectedTool.id === 'eraser' && !pixels[coords.row][coords.col].isFilled) {
+      return;
+    }
+    // 履歴を保存
+    addTmpHistoryRecord(coords.row, coords.col, pixels[coords.row][coords.col]);
+    // ピクセルのStateを変更
+    changePixelState(coords.row, coords.col, newPixelColor(selectedColor));
+  }, [addTmpHistoryRecord, changePixelState, pixels, selectedColor, selectedTool]);
 
   // キャンバスの初期化
   useEffect(() => {
@@ -76,14 +66,11 @@ const PixelGrid = memo(function PixelGrid({
     if (coords) {
       if (isDragging && 
           (lastCellRef.current?.row !== coords.row || lastCellRef.current?.col !== coords.col)) {
-        // 履歴を保存
-        addTmpHistoryRecord(coords.row, coords.col, pixels[coords.row][coords.col]);
-        // ピクセルのStateを変更
-        changePixelState(coords.row, coords.col, newPixelColor(selectedColor));
+        updatePixel(coords);
         lastCellRef.current = coords;
       }
     }
-  }, [isDragging, changePixelState, selectedColor, addTmpHistoryRecord]);
+  }, [isDragging, updatePixel]);
 
   // マウスイベント(マウス押下)
   const handleCanvasMouseDown = useCallback((e: React.MouseEvent<HTMLCanvasElement>) => {
@@ -91,21 +78,18 @@ const PixelGrid = memo(function PixelGrid({
       setIsDragging(true);
       const coords = getCellCoordinates(e);
       if (coords) {
-        // 履歴を保存
-        addTmpHistoryRecord(coords.row, coords.col, pixels[coords.row][coords.col]);
-        // ピクセルのStateを変更
-        changePixelState(coords.row, coords.col, newPixelColor(selectedColor));
+        updatePixel(coords);
         lastCellRef.current = coords;
       }
     }
-  }, [changePixelState, selectedColor, addTmpHistoryRecord]);
+  }, [changePixelState, selectedColor, updatePixel]);
 
   // マウスイベント(マウス離下)
   const handleCanvasMouseUp = useCallback(() => {
     setIsDragging(false);
     // 変更をまとめて履歴として保存 
-    addHistoryRecord();
-    }, [addHistoryRecord]);
+    rollUpHistoryRecord();
+  }, [rollUpHistoryRecord]);
 
   return ( 
     <div className="flex justify-between items-center min-h-[512px] bg-slate-900 rounded-lg">
