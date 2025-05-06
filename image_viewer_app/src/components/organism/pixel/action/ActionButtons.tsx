@@ -1,25 +1,25 @@
-import React from 'react';
+'use client';
+import { usePixel } from '@/hooks/common/usePixel';
 
-interface ActionButtonsProps {
-  onSave: () => void;
-  onCancel: () => void;
-}
+const ActionButtons = () => {
+  const { resetPixelState, savePixelArt } = usePixel();
 
-export const ActionButtons: React.FC<ActionButtonsProps> = ({ onSave, onCancel }) => {
   return (
     <div className="space-y-2">
-      <button 
+      <button
+        onClick={resetPixelState}
+        className="w-full p-2 border text-white rounded"
+      >
+        クリア
+      </button>
+      <button
+        onClick={savePixelArt}
         className="w-full p-2 bg-blue-600 text-white rounded"
-        onClick={onSave}
       >
         保存
       </button>
-      <button 
-        className="w-full p-2 border text-white rounded"
-        onClick={onCancel}
-      >
-        キャンセル
-      </button>
     </div>
   );
-}; 
+};
+
+export default ActionButtons; 
