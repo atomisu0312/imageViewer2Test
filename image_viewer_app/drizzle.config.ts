@@ -3,16 +3,10 @@ import * as dotenv from "dotenv";
 
 dotenv.config();
 
-module.exports = {
+export default {
   schema: './drizzlea/schema.ts',
-  dialect: "postgresql",
-  schemaFilter: ["image"],
   out: "./src/db",
-  dbCredentials: {
-    host: process.env.PG_DB_HOST,
-    user: process.env.PG_DB_USER,
-    password: process.env.PG_DB_PASSWORD,
-    database: process.env.PG_DB_NAME,
-    ssl: false,
-  },
+  connectionString: `postgres://${process.env.PG_DB_USER}:${process.env.PG_DB_PASSWORD}@${process.env.PG_DB_HOST}/${process.env.PG_DB_NAME}`,
+  // @ts-ignore
+  schemaFilter: ["image"],
 } satisfies Config;
