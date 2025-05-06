@@ -11,13 +11,12 @@ import { CursorColorType, PixelColorType, newPixelColor } from "@/types/pixel";
 import { TOOLS, ToolType } from '@/types/tool';
 import PixelGrid from '@/components/organism/pixel/main/PixelGrid';
 import EditorHeader from '@/components/organism/pixel/editorHeader/EditorHeader';
+import { usePixel } from '@/hooks/common/usePixel';
 
 export default function NewPixelPage() {
   // 1. State宣言
   const [selectedTool, setSelectedTool] = useState<ToolType>(TOOLS[0]);
   const [selectedColor, setSelectedColor] = useState<PixelColorType>(newPixelColor('#000000'));
-
-
   // 5. カスタムフック
   const { value: canvasSize, onChange: setCanvasSize } = useCanvasSize();
   const { value: zoom, onChange: setZoom } = useZoom();

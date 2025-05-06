@@ -1,7 +1,7 @@
 import { configureStore } from '@reduxjs/toolkit'
 import isDetailOpenSliceReducer from '@/store/imageViewSlice'
 import { TypedUseSelectorHook, useDispatch, useSelector, useStore } from 'react-redux'
-import {pixelReducer} from './slices/pixelSlice'
+import {pixelReducer} from '@/store/slices/pixelSlice'
 
 export const store = configureStore({
   reducer: {

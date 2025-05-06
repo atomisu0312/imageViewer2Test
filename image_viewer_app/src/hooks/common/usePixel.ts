@@ -4,9 +4,8 @@ import { togglePixel, setSize, resetPixels, setPixels, erasePixel } from '@/stor
 import { PixelColorType, PixelGrid } from '@/types/pixel';
 
 export const usePixel = () => {
-  const pixels = useSelector((state: RootState) => state.pixel.pixels);
-  const size = useSelector((state: RootState) => state.pixel.size);
   const dispatch = useDispatch();
+  const pixels = useSelector((state: RootState) => state.pixel.pixels);
 
   const togglePixelState = (row: number, col: number, color: PixelColorType) => {
     dispatch(togglePixel({ row, col, color }));
@@ -30,7 +29,6 @@ export const usePixel = () => {
 
   return {
     pixels,
-    size,
     togglePixelState,
     erasePixelState,
     updateSize,

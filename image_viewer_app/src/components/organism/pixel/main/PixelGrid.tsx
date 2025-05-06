@@ -1,9 +1,9 @@
 'use client';
 import { useEffect, useRef, useState, useMemo, useCallback, memo } from "react";
 import { CursorColorType, PixelColorType, newPixelColor } from "@/types/pixel";
-import { usePixel } from "@/hooks/common/usePixel";
-import { ToolType } from "@/types/tool";
 import { useCanvasDraw } from "@/hooks/pixel/useCanvasDraw";
+import { ToolType } from "@/types/tool";
+import { usePixel } from "@/hooks/common/usePixel";
 
 interface PixelGridProps {
   size: number;
@@ -13,10 +13,11 @@ interface PixelGridProps {
   selectedTool: ToolType;
 }
 
-const PixelGrid = memo(function PixelGrid({ size, zoom = 100, cursorColor = 'blue', selectedColor, selectedTool }: PixelGridProps) {
+const PixelGrid = memo(function PixelGrid({
+  size, zoom = 100, cursorColor = 'blue', selectedColor, selectedTool
+}: PixelGridProps) {
   const { pixels, togglePixelState, erasePixelState, updateSize } = usePixel();
   const { canvasRef, CANVAS_BASE, getCellCoordinates } = useCanvasDraw(size, pixels);
-
   const [isDragging, setIsDragging] = useState(false);
   const [initialized, setInitialized] = useState(false);
 
