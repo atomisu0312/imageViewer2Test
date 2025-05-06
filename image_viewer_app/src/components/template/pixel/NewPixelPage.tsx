@@ -9,8 +9,8 @@ import { useZoom } from "@/hooks/pixel/useZoom";
 import { useCursorColor } from "@/hooks/pixel/useCursorColor";
 import { CursorColorType, PixelColorType, newPixelColor } from "@/types/pixel";
 import { TOOLS, ToolType } from '@/types/tool';
-import { color } from '@/types/color';
 import PixelGrid from '@/components/organism/pixel/main/PixelGrid';
+import EditorHeader from '@/components/organism/pixel/editorHeader/EditorHeader';
 
 export default function NewPixelPage() {
   // 1. State宣言
@@ -62,7 +62,7 @@ export default function NewPixelPage() {
         {/* ドット絵作成エリア */}
         <div className="lg:col-span-2">
           <div className="border rounded-lg bg-slate-800 py-2">
-            <h1 className="text-center text-3xl text-white mb-4">キャンバス：{canvasSize}x{canvasSize}</h1>
+            <EditorHeader canvasSize={canvasSize} />
             <PixelGrid 
                 size={canvasSize} 
                 zoom={zoom} 
