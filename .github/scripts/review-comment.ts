@@ -7,11 +7,35 @@ interface ReviewCommentParams {
 }
 
 export async function postReviewComment({ github, context }: ReviewCommentParams): Promise<void> {
+  // プルリクエストの変更差分を取得
+  const { data: pullRequest } = await github.rest.pulls.get({
+    owner: context.repo.owner,
+    repo: context.repo.repo,
+    pull_number: context.issue.number,
+  });
+
+  const { data: files } = await github.rest.pulls.listFiles({
+    owner: context.repo.owner,
+    repo: context.repo.repo,
+    pull_number: context.issue.number,
+  });
+
+  // 変更されたファイルの一覧を作成
+  const changedFiles = files.map(file => {
+    const status = file.status === 'modified' ? '🔄' : 
+                  file.status === 'added' ? '✨' : 
+                  file.status === 'removed' ? '🗑️' : '📝';
+    return `${status} ${file.filename} (${file.changes} changes)`;
+  }).join('\n');
+
   const reviewComment = `
   ## 🤖 ボットレビュー
 
   こんにちは！プルリクエストを確認しました。
   コードの変更をありがとうございます！
+
+  ### 変更内容
+  ${changedFiles}
 
   ### レビュー結果
   - ✅ コードの変更は適切です
