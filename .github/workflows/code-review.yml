@@ -15,9 +15,22 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: |
+          npm install @octokit/rest @actions/github typescript @types/node
+
+      - name: Compile TypeScript
+        run: |
+          npx tsc .github/scripts/review-comment.ts --esModuleInterop true
+
       - name: Post review comment
         uses: actions/github-script@v7
         with:
           script: |
-            const reviewScript = require('./.github/scripts/review-comment.js');
-            await reviewScript(github, context);
+            const { postReviewComment } = require('./.github/scripts/review-comment.js');
+            await postReviewComment({ github, context });
