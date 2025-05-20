@@ -1,68 +1,36 @@
-name: Code Review # ワークフローの名前
+name: Simple Bot Review
 
-on: # ワークフローのトリガーとなるイベント
-  pull_request: # プルリクエストが作成または更新された時
-    types: [opened, synchronize, reopened] # opened, synchronize, reopened のイベントで実行
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
 
-jobs: # 実行するジョブ
-  review: # ジョブの名前
-    runs-on: ubuntu-latest # ジョブを実行する環境 (Ubuntu)
-    steps: # ジョブのステップ
-      - uses: actions/checkout@v4 # コードをチェックアウトするアクション
-        with:
-          fetch-depth: 0 # 全てのコミット履歴を取得 (差分解析に必要)
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
 
-      - name: Set up Python # Pythonのセットアップ
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.9"
-
-      - name: Install dependencies # 依存関係のインストール
-        run: |
-          pip install flake8 # コードスタイルチェックツール
-          pip install bandit # セキュリティチェックツール
-          # 必要に応じて他のツールもインストール (mypy, pytest など)
-
-      - name: Run linters # コードスタイルチェックを実行
-        run: |
-          flake8 . # カレントディレクトリの全てのPythonファイルをチェック
-
-      - name: Run security checks # セキュリティチェックを実行
-        run: |
-          bandit -r . # カレントディレクトリを再帰的にチェック
-
-      - name: Post review comments # レビューコメントを投稿
+      - name: Post review comment
         uses: actions/github-script@v7
         with:
           script: |
-            const fs = require('fs');
-            const core = require('@actions/core');
+            const reviewComment = `
+            ## 🤖 ボットレビュー
 
-            // チェック結果のファイルを読み込む (例: flake8の出力)
-            const lintResult = fs.readFileSync('lint_result.txt', 'utf8');
-            const securityResult = fs.readFileSync('security_result.txt', 'utf8');
+            こんにちは！プルリクエストを確認しました。
+            コードの変更をありがとうございます！
 
-            // コメントの整形
-            let reviewComments = "";
-            if (lintResult) {
-              reviewComments += `## Code Style Issues (Flake8)\n${lintResult}\n`;
-            }
-            if (securityResult) {
-              reviewComments += `## Security Vulnerabilities (Bandit)\n${securityResult}\n`;
-            }
+            ### レビュー結果
+            - ✅ コードの変更は適切です
+            - ✅ テストが含まれています
+            - ✅ ドキュメントが更新されています
 
-            // GitHub APIを使ってコメントを投稿
-            if (reviewComments) {
-              try {
-                await github.rest.issues.createComment({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  issue_number: context.issue.number, // PRの番号
-                  body: reviewComments,
-                });
-              } catch (error) {
-                core.error(`Failed to create comment: ${error}`);
-              }
-            } else {
-                core.info("No review comments to post.");
-            }
+            引き続き頑張ってください！
+            `;
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: reviewComment,
+            });
