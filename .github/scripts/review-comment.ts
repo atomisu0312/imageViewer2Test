@@ -20,13 +20,31 @@ export async function postReviewComment({ github, context }: ReviewCommentParams
     pull_number: context.issue.number,
   });
 
-  // 変更されたファイルの一覧を作成
-  const changedFiles = files.map(file => {
-    const status = file.status === 'modified' ? '🔄' : 
-                  file.status === 'added' ? '✨' : 
-                  file.status === 'removed' ? '🗑️' : '📝';
-    return `${status} ${file.filename} (${file.changes} changes)`;
-  }).join('\n');
+  // 変更内容の詳細を取得
+  const changes = await Promise.all(
+    files.map(async file => {
+      const { data: fileContent } = await github.rest.pulls.get({
+        owner: context.repo.owner,
+        repo: context.repo.repo,
+        pull_number: context.issue.number,
+        mediaType: {
+          format: 'diff'
+        }
+      });
+
+      const status = file.status === 'modified' ? '🔄' : 
+                    file.status === 'added' ? '✨' : 
+                    file.status === 'removed' ? '🗑️' : '📝';
+
+      return `
+### ${status} ${file.filename}
+\`\`\`diff
+${file.patch || '新規ファイル'}
+\`\`\`
+変更行数: ${file.changes}行
+      `;
+    })
+  );
 
   const reviewComment = `
   ## 🤖 ボットレビュー
@@ -34,8 +52,8 @@ export async function postReviewComment({ github, context }: ReviewCommentParams
   こんにちは！プルリクエストを確認しました。
   コードの変更をありがとうございます！
 
-  ### 変更内容
-  ${changedFiles}
+  ### 変更内容の詳細
+  ${changes.join('\n')}
 
   ### レビュー結果
   - ✅ コードの変更は適切です
