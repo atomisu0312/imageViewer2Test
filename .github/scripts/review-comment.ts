@@ -1,9 +1,54 @@
 import { Octokit } from '@octokit/rest';
 import { Context } from '@actions/github/lib/context';
+import fetch from 'node-fetch';
 
 interface ReviewCommentParams {
   github: Octokit;
   context: Context;
+}
+
+interface OpenAIResponse {
+  choices: Array<{
+    message: {
+      content: string;
+    };
+  }>;
+}
+
+async function getOpenAIReview(changes: string): Promise<string> {
+  const apiKey = process.env.OPENAI_API_KEY;
+  if (!apiKey) {
+    throw new Error('OPENAI_API_KEY is not set');
+  }
+
+  const response = await fetch(
+    'https://api.openai.com/v1/chat/completions',
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`
+      },
+      body: JSON.stringify({
+        model: 'gpt-4-turbo-preview',
+        messages: [
+          {
+            role: 'system',
+            content: 'あなたは経験豊富なソフトウェアエンジニアです。コードレビューを行い、技術的な観点から改善点や潜在的な問題点を指摘してください。'
+          },
+          {
+            role: 'user',
+            content: `以下のコード変更をレビューしてください：\n\n${changes}`
+          }
+        ],
+        temperature: 0.7,
+        max_tokens: 1000
+      })
+    }
+  );
+
+  const data = await response.json() as OpenAIResponse;
+  return data.choices[0].message.content;
 }
 
 export async function postReviewComment({ github, context }: ReviewCommentParams): Promise<void> {
@@ -23,15 +68,6 @@ export async function postReviewComment({ github, context }: ReviewCommentParams
   // 変更内容の詳細を取得
   const changes = await Promise.all(
     files.map(async file => {
-      const { data: fileContent } = await github.rest.pulls.get({
-        owner: context.repo.owner,
-        repo: context.repo.repo,
-        pull_number: context.issue.number,
-        mediaType: {
-          format: 'diff'
-        }
-      });
-
       const status = file.status === 'modified' ? '🔄' : 
                     file.status === 'added' ? '✨' : 
                     file.status === 'removed' ? '🗑️' : '📝';
@@ -46,6 +82,9 @@ ${file.patch || '新規ファイル'}
     })
   );
 
+  const changesText = changes.join('\n');
+  const openAIReview = await getOpenAIReview(changesText);
+
   const reviewComment = `
   ## 🤖 ボットレビュー
 
@@ -53,7 +92,10 @@ ${file.patch || '新規ファイル'}
   コードの変更をありがとうございます！
 
   ### 変更内容の詳細
-  ${changes.join('\n')}
+  ${changesText}
+
+  ### AIレビュー結果
+  ${openAIReview}
 
   ### レビュー結果
   - ✅ コードの変更は適切です
