@@ -7,10 +7,12 @@ on:
 # 権限の設定を追加
 permissions:
   pull-requests: write
-  issues: write
+  issues: write # Issueへのコメント投稿に必要
 
 env:
   OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+  APP_ID: ${{ secrets.REVIEW_GITHUB_APP_ID }}
+  PRIVATE_KEY: ${{ secrets.REVIEW_GITHUB_APP_PRIVATE_KEY }}
 
 jobs:
   review:
@@ -25,7 +27,8 @@ jobs:
 
       - name: Install dependencies
         run: |
-          npm install @octokit/rest @actions/github typescript @types/node node-fetch@2
+          # GitHub App認証のためのライブラリをインストール
+          npm install @octokit/rest @actions/github typescript @types/node node-fetch@2 @octokit/auth-app
 
       - name: Compile TypeScript
         run: |
@@ -36,4 +39,10 @@ jobs:
         with:
           script: |
             const { postReviewComment } = require('./.github/scripts/review-comment.js');
-            await postReviewComment({ github, context });
+            // GitHub Appの認証情報をスクリプトに渡します
+            await postReviewComment({
+              github,
+              context,
+              appId: process.env.APP_ID,
+              privateKey: process.env.PRIVATE_KEY
+            });
