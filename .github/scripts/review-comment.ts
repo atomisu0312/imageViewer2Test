@@ -39,7 +39,7 @@ async function getOpenAIReview(changes: string): Promise<string> {
           'Authorization': `Bearer ${apiKey}`
         },
         body: JSON.stringify({
-          model: 'gpt-4-turbo',
+          model: 'gpt-4.1-mini',
           messages: [
             {
               role: 'system',
@@ -128,7 +128,7 @@ ${file.patch || '新規ファイル'}
   こんにちは！プルリクエストを確認しました。
   コードの変更をありがとうございます！
 
-  ### 変更内容の詳細
+  ### 直近の変更内容（最新5件）
   ${changesText}
 
   ### AIレビュー結果
