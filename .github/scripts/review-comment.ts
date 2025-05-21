@@ -39,7 +39,7 @@ async function getOpenAIReview(changes: string): Promise<string> {
           'Authorization': `Bearer ${apiKey}`
         },
         body: JSON.stringify({
-          model: 'gpt-4-turbo-preview',
+          model: 'gpt-4.1-mini',
           messages: [
             {
               role: 'system',
@@ -87,14 +87,6 @@ export async function postReviewComment({ github, context, token }: ReviewCommen
   // This Octokit instance will make API calls as the GitHub App.
   const appGithub = new Octokit({ auth: token });
 
-  // プルリクエストの変更差分を取得
-  // Get pull request changes.
-  const { data: pullRequest } = await appGithub.rest.pulls.get({
-    owner: context.repo.owner,
-    repo: context.repo.repo,
-    pull_number: context.issue.number,
-  });
-
   const { data: files } = await appGithub.rest.pulls.listFiles({
     owner: context.repo.owner,
     repo: context.repo.repo,
@@ -128,16 +120,8 @@ ${file.patch || '新規ファイル'}
   こんにちは！プルリクエストを確認しました。
   コードの変更をありがとうございます！
 
-  ### 変更内容の詳細
-  ${changesText}
-
   ### AIレビュー結果
   ${openAIReview}
-
-  ### レビュー結果
-  - ✅ コードの変更は適切です
-  - ✅ テストが含まれています
-  - ✅ ドキュメントが更新されています
 
   引き続き頑張ってください！
   `;
