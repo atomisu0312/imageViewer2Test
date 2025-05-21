@@ -7,7 +7,7 @@ interface ReviewCommentParams {
   github: Octokit; // actions/github-scriptから提供されるが、App認証のために新しいOctokitインスタンスを作成する
   context: Context;
   appId: string; // GitHub AppのID
-  privateKey: string; // GitHub Appの秘密鍵
+  privateKey: string; // GitHub AppのPAT
 }
 
 interface OpenAIResponse {
