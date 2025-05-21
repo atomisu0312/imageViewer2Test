@@ -1,13 +1,12 @@
 import { Octokit } from '@octokit/rest';
 import { Context } from '@actions/github/lib/context';
 import fetch from 'node-fetch';
-import { createAppAuth } from '@octokit/auth-app'; // GitHub App認証のために追加
+// @octokit/auth-app は actions/create-github-app-token を使用するため不要になります
 
 interface ReviewCommentParams {
-  github: Octokit; // actions/github-scriptから提供されるが、App認証のために新しいOctokitインスタンスを作成する
+  github: Octokit; // actions/github-scriptから提供されるが、ここでは直接使用しない
   context: Context;
-  appId: string; // GitHub AppのID
-  privateKey: string; // GitHub AppのPAT
+  token: string; // actions/create-github-app-token@v1 で生成されたトークンを直接受け取る
 }
 
 interface OpenAIResponse {
@@ -20,8 +19,9 @@ interface OpenAIResponse {
 
 /**
  * OpenAI APIを呼び出してコードレビューを取得します。
- * @param changes コードの変更差分
- * @returns OpenAIによるレビューコメント
+ * Calls the OpenAI API to get a code review.
+ * @param changes コードの変更差分 / Code changes
+ * @returns OpenAIによるレビューコメント / Review comment from OpenAI
  */
 async function getOpenAIReview(changes: string): Promise<string> {
   const apiKey = process.env.OPENAI_API_KEY;
@@ -74,61 +74,21 @@ async function getOpenAIReview(changes: string): Promise<string> {
 
 /**
  * プルリクエストにレビューコメントを投稿します。
- * GitHub Appとして認証し、コメントを投稿します。
- * @param params ReviewCommentParamsオブジェクト（github, context, appId, privateKeyを含む）
+ * Posts a review comment to the pull request.
+ * @param params ReviewCommentParamsオブジェクト（github, context, tokenを含む） / ReviewCommentParams object (including github, context, and token)
  */
-export async function postReviewComment({ github, context, appId, privateKey }: ReviewCommentParams): Promise<void> {
-  if (!appId || !privateKey) {
-    throw new Error('GitHub App ID or Private Key is not provided. Please set APP_ID and PRIVATE_KEY as GitHub secrets.');
+export async function postReviewComment({ github, context, token }: ReviewCommentParams): Promise<void> {
+  // actions/create-github-app-token@v1 からトークンが渡されることを確認
+  if (!token) {
+    throw new Error('GitHub App token is not provided. Please ensure actions/create-github-app-token@v1 successfully generated a token.');
   }
 
-  // GitHub Appとして認証するための認証オブジェクトを作成
-  const auth = createAppAuth({
-    appId: appId,
-    privateKey: privateKey,
-    // インストールIDを取得するために、認証されていないOctokitインスタンスを使用
-    request: github.request.defaults({
-      baseUrl: context.apiUrl,
-    }),
-  });
-
-  let installationId: number | undefined;
-
-  try {
-    // 組織にインストールされているAppのインストールIDを取得しようと試みる
-    const { data: orgInstallation } = await github.rest.apps.getOrgInstallation({
-      org: context.repo.owner,
-    });
-    installationId = orgInstallation.id;
-  } catch (orgError) {
-    // 組織にインストールされていない場合、リポジトリにインストールされているAppのインストールIDを取得しようと試みる
-    try {
-      const { data: repoInstallation } = await github.rest.apps.getRepoInstallation({
-        owner: context.repo.owner,
-        repo: context.repo.repo,
-      });
-      installationId = repoInstallation.id;
-    } catch (repoError) {
-      console.error('Failed to get GitHub App installation ID for both org and repo:', orgError, repoError);
-      throw new Error(`GitHub App is not installed on ${context.repo.owner}/${context.repo.repo} or its organization.`);
-    }
-  }
-
-  if (!installationId) {
-    throw new Error(`GitHub App installation ID could not be determined for ${context.repo.owner}/${context.repo.repo}.`);
-  }
-
-  // インストールトークンを取得
-  const { token } = await auth({
-    type: 'installation',
-    installationId: installationId,
-  });
-
-  // インストールトークンを使用して新しいOctokitインスタンスを作成
-  // これにより、このインスタンスを介したAPI呼び出しはGitHub Appとして実行されます。
+  // 生成されたトークンを使用してOctokitインスタンスを作成
+  // This Octokit instance will make API calls as the GitHub App.
   const appGithub = new Octokit({ auth: token });
 
   // プルリクエストの変更差分を取得
+  // Get pull request changes.
   const { data: pullRequest } = await appGithub.rest.pulls.get({
     owner: context.repo.owner,
     repo: context.repo.repo,
@@ -142,6 +102,7 @@ export async function postReviewComment({ github, context, appId, privateKey }: 
   });
 
   // 変更内容の詳細を取得
+  // Get detailed changes.
   const changes = await Promise.all(
     files.map(async file => {
       const status = file.status === 'modified' ? '🔄' : 
@@ -182,10 +143,12 @@ ${file.patch || '新規ファイル'}
   `;
 
   // GitHub Appとしてコメントを投稿
+  // Post comment as GitHub App.
   await appGithub.rest.issues.createComment({
     owner: context.repo.owner,
     repo: context.repo.repo,
     issue_number: context.issue.number,
     body: reviewComment,
   });
+  console.log('Review comment posted successfully by GitHub App.');
 }
