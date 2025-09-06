@@ -16,7 +16,6 @@ jobs:
   build_diff:
     runs-on: ubuntu-latest
     outputs:
-      comment_body: ${{ steps.build_script.outputs.body }}
       has_body: ${{ steps.build_script.outputs.has_body }}
     steps:
       - name: Local Run Placeholder
@@ -34,6 +33,7 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
+            const fs = require('fs');
             const prNumber = context.issue.number;
             if (!prNumber) {
               core.setFailed('Could not get pull request number from context');
@@ -45,28 +45,41 @@ jobs:
               pull_number: prNumber,
             });
             const changes = files.map(file => {
-              const status = file.status === 'modified' ? '🔄' :
-                            file.status === 'added' ? '✨' :
+              const status = file.status === 'modified' ? '🔄' : 
+                            file.status === 'added' ? '✨' : 
                             file.status === 'removed' ? '🗑️' : '📝';
               const patch = file.patch || '新規ファイル';
-              return '### ' + status + ' ' + file.filename + '\n' +
-                     '```diff\n' +
-                     patch + '\n' +
-                     '```\n' +
+              return '### ' + status + ' ' + file.filename + '\n' + 
+                     '```diff\n' + 
+                     patch + '\n' + 
+                     '```\n' + 
                      '変更行数: ' + file.changes + '行';
             });
             const commentBody = changes.join('\n\n');
-            core.setOutput('body', commentBody);
+            fs.writeFileSync('comment-body.txt', commentBody);
             if (commentBody) {
               core.setOutput('has_body', 'true');
             } else {
               core.setOutput('has_body', 'false');
             }
 
+      - name: Upload comment body artifact
+        if: steps.build_script.outputs.has_body == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: comment-body-artifact
+          path: comment-body.txt
+
   post_comment:
     runs-on: ubuntu-latest
     needs: build_diff
     steps:
+      - name: Download comment body artifact
+        if: env.ACT != 'true' && needs.build_diff.outputs.has_body == 'true'
+        uses: actions/download-artifact@v4
+        with:
+          name: comment-body-artifact
+
       - name: Generate GitHub App Token
         if: env.ACT != 'true' && needs.build_diff.outputs.has_body == 'true'
         id: generate_token
@@ -75,22 +88,16 @@ jobs:
           app-id: ${{ secrets.REVIEW_GITHUB_APP_ID }}
           private-key: ${{ secrets.REVIEW_GITHUB_APP_PRIVATE_KEY }}
 
-      - name: Debug Data Transfer
-        if: env.ACT != 'true' && needs.build_diff.outputs.has_body == 'true'
-        run: |
-          echo "NEEDS_CONTEXT: ${{ toJSON(needs) }}"
-          echo "HAS_BODY: ${{ needs.build_diff.outputs.has_body }}"
-          echo "COMMENT_BODY: ${{ needs.build_diff.outputs.comment_body }}"
-
       - name: Post file changes as a comment
         if: env.ACT != 'true' && needs.build_diff.outputs.has_body == 'true'
         uses: actions/github-script@v8
         with:
           github-token: ${{ steps.generate_token.outputs.token }}
           script: |
-            const body = process.env.COMMENT_BODY;
+            const fs = require('fs');
+            const body = fs.readFileSync('comment-body.txt', 'utf8');
             if (!body) {
-              throw new Error('COMMENT_BODY environment variable is empty or not set!');
+              throw new Error('Comment body file is empty or could not be read!');
             }
             await github.rest.issues.createComment({
               owner: context.repo.owner,
@@ -98,5 +105,3 @@ jobs:
               issue_number: context.issue.number,
               body: body
             });
-        env:
-          COMMENT_BODY: ${{ needs.build_diff.outputs.comment_body }}
