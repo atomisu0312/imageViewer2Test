@@ -21,7 +21,8 @@ jobs:
     steps:
       - name: Local Run Placeholder
         if: ${{ env.ACT == 'true' }}
-        run: echo "Local run: Skipping diff generation."
+        run: |
+          echo "Local run: Skipping diff generation."
 
       - uses: actions/checkout@v4
         if: ${{ env.ACT != 'true' }}
