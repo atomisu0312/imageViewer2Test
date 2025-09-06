@@ -21,8 +21,7 @@ jobs:
     steps:
       - name: Local Run Placeholder
         if: ${{ env.ACT == 'true' }}
-        run: |
-          echo "Local run: Skipping diff generation."
+        run: echo "Local run: Skipping diff generation."
 
       - uses: actions/checkout@v4
         if: ${{ env.ACT != 'true' }}
@@ -45,14 +44,14 @@ jobs:
               pull_number: prNumber,
             });
             const changes = files.map(file => {
-              const status = file.status === 'modified' ? '🔄' : 
-                            file.status === 'added' ? '✨' : 
+              const status = file.status === 'modified' ? '🔄' :
+                            file.status === 'added' ? '✨' :
                             file.status === 'removed' ? '🗑️' : '📝';
               const patch = file.patch || '新規ファイル';
-              return '### ' + status + ' ' + file.filename + '\n' + 
-                     '```diff\n' + 
-                     patch + '\n' + 
-                     '```\n' + 
+              return '### ' + status + ' ' + file.filename + '\n' +
+                     '```diff\n' +
+                     patch + '\n' +
+                     '```\n' +
                      '変更行数: ' + file.changes + '行';
             });
             const commentBody = changes.join('\n\n');
@@ -75,18 +74,28 @@ jobs:
           app-id: ${{ secrets.REVIEW_GITHUB_APP_ID }}
           private-key: ${{ secrets.REVIEW_GITHUB_APP_PRIVATE_KEY }}
 
+      - name: Debug Data Transfer
+        if: env.ACT != 'true' && needs.build_diff.outputs.has_body == 'true'
+        run: |
+          echo "NEEDS_CONTEXT: ${{ toJSON(needs) }}"
+          echo "HAS_BODY: ${{ needs.build_diff.outputs.has_body }}"
+          echo "COMMENT_BODY: ${{ needs.build_diff.outputs.comment_body }}"
+
       - name: Post file changes as a comment
         if: env.ACT != 'true' && needs.build_diff.outputs.has_body == 'true'
         uses: actions/github-script@v8
         with:
           github-token: ${{ steps.generate_token.outputs.token }}
-          script: |
-            const body = process.env.COMMENT_BODY;
-            await github.rest.issues.createComment({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: context.issue.number,
-              body: body
-            });
         env:
           COMMENT_BODY: ${{ needs.build_diff.outputs.comment_body }}
+        script: |
+          const body = process.env.COMMENT_BODY;
+          if (!body) {
+            throw new Error('COMMENT_BODY environment variable is empty or not set!');
+          }
+          await github.rest.issues.createComment({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            issue_number: context.issue.number,
+            body: body
+          });
