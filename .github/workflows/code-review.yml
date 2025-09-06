@@ -19,15 +19,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-
-      - name: Install dependencies
-        run: |
-          npm install @octokit/rest @actions/github @actions/core typescript @types/node node-fetch@2 ts-node --save-dev @types/node-fetch
-
       - name: Generate GitHub App Token
         id: generate_token # このIDでトークンにアクセスします
         uses: actions/create-github-app-token@v1
@@ -35,28 +26,50 @@ jobs:
           app-id: ${{ secrets.REVIEW_GITHUB_APP_ID }} # シークレットから直接App IDを取得
           private-key: ${{ secrets.REVIEW_GITHUB_APP_PRIVATE_KEY }} # シークレットから直接Private Keyを取得
 
+
+
       - name: Local Run Placeholder
         if: ${{ env.ACT == 'true' }}
         run: |
           echo "Local run: Skipping API calls and comment posting."
 
-      - name: Get PR files via GitHub API
+      - name: Post file changes as a comment
         if: ${{ env.ACT != 'true' }}
-        id: file_changes
-        run: node .github/scripts/sample.mjs
-        env:
-          TOKEN: ${{ steps.generate_token.outputs.token }}
-
-      - name: Post Changes to PR
-        if: ${{ env.ACT != 'true' }}
-        uses: actions/github-script@v7
+        uses: actions/github-script@v8
         with:
           github-token: ${{ steps.generate_token.outputs.token }}
           script: |
-            const body = `${{ steps.file_changes.outputs.comment_body }}`;
-            github.rest.issues.createComment({
+            const prNumber = context.issue.number;
+            if (!prNumber) {
+              core.setFailed('Could not get pull request number from context');
+              return;
+            }
+            const { data: files } = await github.rest.pulls.listFiles({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              issue_number: context.issue.number,
-              body: body
+              pull_number: prNumber,
+            });
+
+            const changes = files.map(file => {
+              const status = file.status === 'modified' ? '🔄' :
+                            file.status === 'added' ? '✨' :
+                            file.status === 'removed' ? '🗑️' : '📝';
+              const patch = file.patch || '新規ファイル';
+              return `### ${status} ${file.filename}
+              \
+              \
+              ${patch}
+              \
+              \
+              ` + '```' + `
+              変更行数: ${file.changes}行`;
+                          });
+
+            const commentBody = changes.join('\n\n');
+                            
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber,
+              body: commentBody
             });
