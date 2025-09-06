@@ -22,9 +22,9 @@ const changes = await Promise.all(
 
     return `
       ### ${status} ${file.filename}
-      \`\`\`diff
+      
       ${file.patch || '新規ファイル'}
-      \`\`\`
+      
       変更行数: ${file.changes}行
     `;
   })
