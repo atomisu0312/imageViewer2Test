@@ -21,7 +21,8 @@ jobs:
     steps:
       - name: Local Run Placeholder
         if: ${{ env.ACT == 'true' }}
-        run: echo "Local run: Skipping diff generation."
+        run: |
+          echo "Local run: Skipping diff generation."
 
       - uses: actions/checkout@v4
         if: ${{ env.ACT != 'true' }}
@@ -79,13 +80,13 @@ jobs:
         uses: actions/github-script@v8
         with:
           github-token: ${{ steps.generate_token.outputs.token }}
+          script: |
+            const body = process.env.COMMENT_BODY;
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: body
+            });
         env:
           COMMENT_BODY: ${{ needs.build_diff.outputs.comment_body }}
-        script: |
-          const body = process.env.COMMENT_BODY;
-          await github.rest.issues.createComment({
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            issue_number: context.issue.number,
-            body: body
-          });
