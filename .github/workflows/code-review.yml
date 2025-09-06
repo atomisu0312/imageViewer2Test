@@ -35,11 +35,6 @@ jobs:
           app-id: ${{ secrets.REVIEW_GITHUB_APP_ID }} # シークレットから直接App IDを取得
           private-key: ${{ secrets.REVIEW_GITHUB_APP_PRIVATE_KEY }} # シークレットから直接Private Keyを取得
 
-#      - name: Post review comment
-#        run: npx ts-node .github/scripts/review-comment.ts
-#        env:
-#          GITHUB_APP_TOKEN: ${{ steps.generate_token.outputs.token }}
-
       - name: Local Run Placeholder
         if: ${{ env.ACT == 'true' }}
         run: |
