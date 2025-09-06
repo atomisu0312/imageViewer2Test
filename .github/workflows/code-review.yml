@@ -51,7 +51,7 @@ jobs:
           github-token: ${{ steps.generate_token.outputs.token }}
           script: |
             const prNumber = context.payload.pull_request.number;
-            const { data: files } = await appGithub.rest.pulls.listFiles({
+            const { data: files } = await github.rest.pulls.listFiles({
               owner: context.repo.owner,
               repo: context.repo.repo,
               pull_number: context.issue.number,
