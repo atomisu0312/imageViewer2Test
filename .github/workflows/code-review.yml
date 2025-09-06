@@ -17,10 +17,12 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       comment_body: ${{ steps.build_script.outputs.body }}
+      has_body: ${{ steps.build_script.outputs.has_body }}
     steps:
       - name: Local Run Placeholder
         if: ${{ env.ACT == 'true' }}
-        run: echo "Local run: Skipping diff generation."
+        run: |
+         echo "Local run: Skipping diff generation."
 
       - uses: actions/checkout@v4
         if: ${{ env.ACT != 'true' }}
@@ -43,8 +45,8 @@ jobs:
               pull_number: prNumber,
             });
             const changes = files.map(file => {
-              const status = file.status === 'modified' ? '🔄' : 
-                            file.status === 'added' ? '✨' : 
+              const status = file.status === 'modified' ? '🔄' :
+                            file.status === 'added' ? '✨' :
                             file.status === 'removed' ? '🗑️' : '📝';
               const patch = file.patch || '新規ファイル';
               return '### ' + status + ' ' + file.filename + '\n' + 
@@ -54,12 +56,17 @@ jobs:
                      '変更行数: ' + file.changes + '行';
             });
             const commentBody = changes.join('\n\n');
-            core.setOutput('body', commentBody)
+            core.setOutput('body', commentBody);
+            if (commentBody) {
+              core.setOutput('has_body', 'true');
+            } else {
+              core.setOutput('has_body', 'false');
+            }
 
   post_comment:
     runs-on: ubuntu-latest
     needs: build_diff
-    if: ${{ env.ACT != 'true' && needs.build_diff.outputs.comment_body != '' }} # This job should not run in local act mode or if body is empty
+    if: ${{ env.ACT != 'true' && needs.build_diff.outputs.has_body == 'true' }}
     steps:
       - name: Generate GitHub App Token
         id: generate_token
