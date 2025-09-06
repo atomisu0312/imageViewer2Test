@@ -1,5 +1,6 @@
 import { Octokit } from '@octokit/rest';
 import { context } from '@actions/github';
+import * as core from '@actions/core';
 
 const github = new Octokit({ auth: process.env.TOKEN });
 
@@ -28,4 +29,5 @@ const changes = await Promise.all(
     `;
   })
 );
-console.log(changes);
+const commentBody = changes.join('\n');
+core.setOutput('comment_body', commentBody);
