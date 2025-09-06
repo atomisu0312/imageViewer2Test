@@ -26,8 +26,6 @@ jobs:
           app-id: ${{ secrets.REVIEW_GITHUB_APP_ID }} # シークレットから直接App IDを取得
           private-key: ${{ secrets.REVIEW_GITHUB_APP_PRIVATE_KEY }} # シークレットから直接Private Keyを取得
 
-
-
       - name: Local Run Placeholder
         if: ${{ env.ACT == 'true' }}
         run: |
@@ -49,24 +47,18 @@ jobs:
               repo: context.repo.repo,
               pull_number: prNumber,
             });
-
             const changes = files.map(file => {
               const status = file.status === 'modified' ? '🔄' :
                             file.status === 'added' ? '✨' :
                             file.status === 'removed' ? '🗑️' : '📝';
               const patch = file.patch || '新規ファイル';
-              return `### ${status} ${file.filename}
-              \
-              \
-              ${patch}
-              \
-              \
-              ` + '```' + `
-              変更行数: ${file.changes}行`;
-                          });
-
+              return '### ' + status + ' ' + file.filename + '\n' +
+                     '```diff\n' +
+                     patch + '\n' +
+                     '```\n' +
+                     '変更行数: ' + file.changes + '行';
+            });
             const commentBody = changes.join('\n\n');
-                            
             await github.rest.issues.createComment({
               owner: context.repo.owner,
               repo: context.repo.repo,
