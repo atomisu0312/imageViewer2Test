@@ -1,6 +1,7 @@
 import { Octokit } from '@octokit/rest';
+import { context } from '@actions/github';
 
-const github = new Octokit({ auth: process.env.GH_TOKEN });
+const github = new Octokit({ auth: process.env.TOKEN });
 
 const prNumber = context.payload.pull_request.number;
 
