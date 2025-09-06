@@ -13,8 +13,17 @@ env:
   OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
 
 jobs:
+  start:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Local Run Placeholder
+        if: ${{ env.ACT == 'true' }}
+        run: |
+          echo "Local run: Skipping diff generation."
+
   build_diff:
     runs-on: ubuntu-latest
+    needs: start
     outputs:
       has_body: ${{ steps.build_script.outputs.has_body }}
     steps:
@@ -80,13 +89,13 @@ jobs:
     runs-on: ubuntu-latest
     needs: build_diff
     steps:
-      - name: Download comment body artifact
+      - name: コメントボディのダウンロード
         if: env.ACT != 'true' && needs.build_diff.outputs.has_body == 'true'
         uses: actions/download-artifact@v4
         with:
           name: comment-body-artifact
 
-      - name: Generate GitHub App Token
+      - name: Github App Tokenを生成
         if: env.ACT != 'true' && needs.build_diff.outputs.has_body == 'true'
         id: generate_token
         uses: actions/create-github-app-token@v1
