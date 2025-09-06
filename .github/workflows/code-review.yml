@@ -44,15 +44,37 @@ jobs:
         if: ${{ env.ACT == 'true' }}
         run: echo "このPRは承認を待っています。."
 
-      - name: Get PR files
-        if: ${{ env.ACT != 'true' }} 
-        env:
-          GH_TOKEN: ${{ steps.generate_token.outputs.token }}
-        run: |
-          # プルリクエストの番号を取得
-          PR_NUMBER=$(jq --raw-output .pull_request.number "$GITHUB_EVENT_PATH")
-          # PRの変更ファイルリストを取得して出力
-          gh pr view "$PR_NUMBER" --json files --jq '.files.[].path'
+      - name: Get PR files via GitHub API
+        if: ${{ env.ACT != 'true' }}
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ steps.generate_token.outputs.token }}
+          script: |
+            const prNumber = context.payload.pull_request.number;
+            const { data: files } = await appGithub.rest.pulls.listFiles({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number,
+            });
+          
+            // 変更内容の詳細を取得
+            // Get detailed changes.
+            const changes = await Promise.all(
+              files.map(async file => {
+                const status = file.status === 'modified' ? '🔄' : 
+                              file.status === 'added' ? '✨' : 
+                              file.status === 'removed' ? '🗑️' : '📝';
+          
+                return `
+                  ### ${status} ${file.filename}
+                  \`\`\`diff
+                  ${file.patch || '新規ファイル'}
+                  \`\`\`
+                  変更行数: ${file.changes}行
+                `;
+              })
+            );
+            console.log(changes);
 
       - name: Add PR comment (GitHub)
         if: ${{ env.ACT != 'true' }}
