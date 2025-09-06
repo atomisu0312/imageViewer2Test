@@ -45,7 +45,9 @@ jobs:
         run: echo "このPRは承認を待っています。."
 
       - name: Get PR files
-        if: ${{ env.ACT != 'true' }}        
+        if: ${{ env.ACT != 'true' }} 
+        env:
+          GH_TOKEN: ${{ steps.generate_token.outputs.token }}
         run: |
           # プルリクエストの番号を取得
           PR_NUMBER=$(jq --raw-output .pull_request.number "$GITHUB_EVENT_PATH")
