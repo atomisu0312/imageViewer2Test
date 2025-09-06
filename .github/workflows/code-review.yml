@@ -23,15 +23,20 @@ jobs:
         run: |
           echo "Local run: Skipping diff generation."
 
-      - uses: actions/checkout@v4
-        if: ${{ env.ACT != 'true' }}
+      - name: Generate GitHub App Token
+        if: env.ACT != 'true'
+        id: generate_token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.REVIEW_GITHUB_APP_ID }}
+          private-key: ${{ secrets.REVIEW_GITHUB_APP_PRIVATE_KEY }}
 
       - name: Build diff string
         if: ${{ env.ACT != 'true' }}
         id: build_script
         uses: actions/github-script@v8
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ steps.generate_token.outputs.token }}
           script: |
             const fs = require('fs');
             const prNumber = context.issue.number;
@@ -69,6 +74,7 @@ jobs:
         with:
           name: comment-body-artifact
           path: comment-body.txt
+          retention-days: 1
 
   post_comment:
     runs-on: ubuntu-latest
