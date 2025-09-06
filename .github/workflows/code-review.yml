@@ -4,62 +4,119 @@ on:
   pull_request:
     types: [opened, synchronize, reopened]
 
-# 権限の設定を追加
 permissions:
   pull-requests: write
-  issues: write # Issueへのコメント投稿に必要
-  contents: read # actions/create-github-app-token@v1 が必要とする権限
+  issues: write
+  contents: read
 
 env:
   OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
 
 jobs:
-  review:
+  start:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-
-      - name: Install dependencies
+      - name: Local Run Placeholder
+        if: ${{ env.ACT == 'true' }}
         run: |
-          npm install @octokit/rest @actions/github typescript @types/node node-fetch@2
+          echo "Local run: Skipping diff generation."
 
-      - name: Compile TypeScript
+  build_diff:
+    runs-on: ubuntu-latest
+    needs: start
+    outputs:
+      has_body: ${{ steps.build_script.outputs.has_body }}
+    steps:
+      - name: Local Run Placeholder
+        if: ${{ env.ACT == 'true' }}
         run: |
-          npx tsc .github/scripts/review-comment.ts --esModuleInterop true
+          echo "Local run: Skipping diff generation."
 
       - name: Generate GitHub App Token
-        id: generate_token # このIDでトークンにアクセスします
+        if: env.ACT != 'true'
+        id: generate_token
         uses: actions/create-github-app-token@v1
         with:
-          app-id: ${{ secrets.REVIEW_GITHUB_APP_ID }} # シークレットから直接App IDを取得
-          private-key: ${{ secrets.REVIEW_GITHUB_APP_PRIVATE_KEY }} # シークレットから直接Private Keyを取得
+          app-id: ${{ secrets.REVIEW_GITHUB_APP_ID }}
+          private-key: ${{ secrets.REVIEW_GITHUB_APP_PRIVATE_KEY }}
 
-      - name: Verify Generated Token # 新しく追加したステップ
-        run: |
-          echo "Generated GitHub App Token (masked): ${{ steps.generate_token.outputs.token }}"
-
-      - name: Post review comment
-        uses: actions/github-script@v7
+      - name: Build diff string
+        if: ${{ env.ACT != 'true' }}
+        id: build_script
+        uses: actions/github-script@v8
         with:
+          github-token: ${{ steps.generate_token.outputs.token }}
           script: |
-            // コンパイルされたTypeScriptモジュールをインポート
-            const { postReviewComment } = require('./.github/scripts/review-comment.js');
-
-            // 生成されたトークンは環境変数 GITHUB_TOKEN_FROM_APP としてアクセス可能です。
-            const token = process.env.TOKEN_FROM_APP_ACTION;
-
-            // postReviewComment 関数を呼び出す
-            await postReviewComment({
-              github: github,
-              context: context,
-              token: token
+            const fs = require('fs');
+            const prNumber = context.issue.number;
+            if (!prNumber) {
+              core.setFailed('Could not get pull request number from context');
+              return;
+            }
+            const { data: files } = await github.rest.pulls.listFiles({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: prNumber,
             });
-        env:
-          # generate_tokenステップの出力からトークンを環境変数に設定
-          TOKEN_FROM_APP_ACTION: ${{ steps.generate_token.outputs.token }}
+            const changes = files.map(file => {
+              const status = file.status === 'modified' ? '🔄' : 
+                            file.status === 'added' ? '✨' : 
+                            file.status === 'removed' ? '🗑️' : '📝';
+              const patch = file.patch || '新規ファイル';
+              return '### ' + status + ' ' + file.filename + '\n' + 
+                     '```diff\n' + 
+                     patch + '\n' + 
+                     '```\n' + 
+                     '変更行数: ' + file.changes + '行';
+            });
+            const commentBody = changes.join('\n\n');
+            fs.writeFileSync('comment-body.txt', commentBody);
+            if (commentBody) {
+              core.setOutput('has_body', 'true');
+            } else {
+              core.setOutput('has_body', 'false');
+            }
 
+      - name: Upload comment body artifact
+        if: steps.build_script.outputs.has_body == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: comment-body-artifact
+          path: comment-body.txt
+          retention-days: 1
+
+  post_comment:
+    runs-on: ubuntu-latest
+    needs: build_diff
+    steps:
+      - name: コメントボディのダウンロード
+        if: env.ACT != 'true' && needs.build_diff.outputs.has_body == 'true'
+        uses: actions/download-artifact@v4
+        with:
+          name: comment-body-artifact
+
+      - name: Github App Tokenを生成
+        if: env.ACT != 'true' && needs.build_diff.outputs.has_body == 'true'
+        id: generate_token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.REVIEW_GITHUB_APP_ID }}
+          private-key: ${{ secrets.REVIEW_GITHUB_APP_PRIVATE_KEY }}
+
+      - name: Post file changes as a comment
+        if: env.ACT != 'true' && needs.build_diff.outputs.has_body == 'true'
+        uses: actions/github-script@v8
+        with:
+          github-token: ${{ steps.generate_token.outputs.token }}
+          script: |
+            const fs = require('fs');
+            const body = fs.readFileSync('comment-body.txt', 'utf8');
+            if (!body) {
+              throw new Error('Comment body file is empty or could not be read!');
+            }
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: body
+            });
